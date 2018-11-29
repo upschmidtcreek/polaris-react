@@ -23,6 +23,8 @@ export interface Props extends HeaderProps {
   fullWidth?: boolean;
   /** Decreases the maximum layout width. Intended for single-column layouts */
   singleColumn?: boolean;
+  /** Force render of title, breadcrumbs, and actions in page on embedded app, default false */
+  forceRender?: boolean;
 }
 
 export type ComposedProps = Props & WithAppProviderProps;
@@ -39,7 +41,7 @@ export class Page extends React.PureComponent<ComposedProps, never> {
   private titlebar: AppBridgeTitleBar.TitleBar | undefined;
 
   componentDidMount() {
-    if (this.props.polaris.appBridge == null) {
+    if (!this.renderWithAppBridge) {
       return;
     }
 
@@ -50,7 +52,7 @@ export class Page extends React.PureComponent<ComposedProps, never> {
   }
 
   componentDidUpdate(prevProps: ComposedProps) {
-    if (this.props.polaris.appBridge == null || this.titlebar == null) {
+    if (!this.titlebar || !this.renderWithAppBridge) {
       return;
     }
 
@@ -64,7 +66,7 @@ export class Page extends React.PureComponent<ComposedProps, never> {
   }
 
   componentWillUnmount() {
-    if (this.props.polaris.appBridge == null || this.titlebar == null) {
+    if (!this.titlebar || !this.renderWithAppBridge) {
       return;
     }
 
@@ -81,8 +83,7 @@ export class Page extends React.PureComponent<ComposedProps, never> {
     );
 
     const headerMarkup =
-      this.props.polaris.appBridge ||
-      this.hasHeaderContent() === false ? null : (
+      this.renderWithAppBridge || this.hasHeaderContent() === false ? null : (
         <Header {...rest} />
       );
 
@@ -94,7 +95,20 @@ export class Page extends React.PureComponent<ComposedProps, never> {
     );
   }
 
-  private hasHeaderContent() {
+  private get renderWithAppBridge(): boolean {
+    const {
+      polaris: {appBridge},
+      forceRender = false,
+    } = this.props;
+
+    if (appBridge && !forceRender) {
+      return true;
+    }
+
+    return false;
+  }
+
+  private hasHeaderContent(): boolean {
     const {
       title,
       primaryAction,
