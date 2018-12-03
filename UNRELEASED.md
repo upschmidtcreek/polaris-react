@@ -9,6 +9,7 @@ Use [the changelog guidelines](https://git.io/polaris-changelog-guidelines) to f
 - Moved icons to a separate npm package ([#686](https://github.com/Shopify/polaris-react/pull/686))
 - Added `oneHalf` and `oneThird` props to `Layout` component ([#724](https://github.com/Shopify/polaris-react/pull/724))
 - Added `helpText` prop to ActionList items ([#777](https://github.com/Shopify/polaris-react/pull/777))
+- `TextField` accepts a `showCharacterCount` prop to enable the display of character count ([#709](https://github.com/Shopify/polaris-react/pull/709))
 
 ### Bug fixes
 

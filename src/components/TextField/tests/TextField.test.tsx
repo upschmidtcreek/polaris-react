@@ -305,6 +305,41 @@ describe('<TextField />', () => {
     });
   });
 
+  describe('characterCount', () => {
+    it('counts characters in input field', () => {
+      const textField = mountWithAppProvider(
+        <TextField
+          value="test"
+          showCharacterCount
+          label="TextField"
+          id="MyField"
+          onChange={noop}
+        />,
+      );
+
+      const characterCount = textField.find('#MyField-character-counter');
+
+      expect(characterCount.text()).toBe('4');
+    });
+
+    it('counts characters in input field with max length', () => {
+      const textField = mountWithAppProvider(
+        <TextField
+          value="test"
+          maxLength={10}
+          showCharacterCount
+          label="TextField"
+          id="MyField"
+          onChange={noop}
+        />,
+      );
+
+      const characterCount = textField.find('#MyField-character-counter');
+
+      expect(characterCount.text()).toBe('6');
+    });
+  });
+
   describe('type', () => {
     it('sets the type on the input', () => {
       const type = shallowWithAppProvider(
