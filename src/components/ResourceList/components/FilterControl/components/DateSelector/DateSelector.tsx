@@ -1,5 +1,7 @@
 import * as React from 'react';
 import {autobind} from '@shopify/javascript-utilities/decorators';
+import padStart from 'lodash/padStart';
+
 import DatePicker, {Months, Year, Range} from '../../../../../DatePicker';
 import Select from '../../../../../Select';
 import TextField from '../../../../../TextField';
@@ -252,7 +254,7 @@ class DateSelector extends React.PureComponent<CombinedProps, State> {
     }
 
     if (selectedDate) {
-      return formatDateValue(selectedDate);
+      return formatDateForTimezone(selectedDate).slice(0, 10);
     }
   }
 
@@ -273,7 +275,7 @@ class DateSelector extends React.PureComponent<CombinedProps, State> {
     if (newOption === DateFilterOption.OnOrBefore) {
       onFilterKeyChange(filterMaxKey);
       onFilterValueChange(
-        selectedDate ? formatDateValue(selectedDate) : undefined,
+        selectedDate ? formatDateForTimezone(selectedDate) : undefined,
       );
       return;
     }
@@ -281,7 +283,7 @@ class DateSelector extends React.PureComponent<CombinedProps, State> {
     if (newOption === DateFilterOption.OnOrAfter) {
       onFilterKeyChange(filterMinKey);
       onFilterValueChange(
-        selectedDate ? formatDateValue(selectedDate) : undefined,
+        selectedDate ? formatDateForTimezone(selectedDate) : undefined,
       );
       return;
     }
@@ -341,7 +343,10 @@ class DateSelector extends React.PureComponent<CombinedProps, State> {
       return;
     }
 
-    const nextDate = new Date(userInputDate.replace(/-/g, '/'));
+    const formattedDateForTimezone = formatDateForTimezone(
+      new Date(userInputDate),
+    );
+    const nextDate = new Date(formattedDateForTimezone);
 
     this.setState(
       {
@@ -363,7 +368,7 @@ class DateSelector extends React.PureComponent<CombinedProps, State> {
       return;
     }
 
-    onFilterValueChange(formatDateValue(selectedDate));
+    onFilterValueChange(formatDateForTimezone(selectedDate));
   }
 
   @autobind
@@ -408,8 +413,22 @@ function getDateFilterOption(
   return filterValue;
 }
 
-function formatDateValue(date: Date) {
-  return date.toISOString().slice(0, 10);
+function formatDateForTimezone(date: Date) {
+  const hourOffset = date.getTimezoneOffset() / 60;
+
+  if (hourOffset === 0) {
+    return date.toISOString();
+  }
+
+  const midnight =
+    hourOffset > -1
+      ? date.getHours() + hourOffset
+      : date.getHours() - hourOffset;
+  const updatedDate = new Date(date.setHours(midnight));
+  const month = padStart(String(updatedDate.getMonth() + 1), 2, '0');
+
+  const output = `${updatedDate.getFullYear()}-${month}-${updatedDate.getDate()}T00:00:00`;
+  return output;
 }
 
 export default withAppProvider<Props>()(DateSelector);
