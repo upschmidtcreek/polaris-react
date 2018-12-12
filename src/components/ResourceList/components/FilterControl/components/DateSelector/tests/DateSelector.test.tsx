@@ -161,6 +161,37 @@ describe('<DateSelector />', () => {
     });
   });
 
+  describe('timezones adjustments', () => {
+    const timeZoneOffsets = [720, 540, 60, 0, -60, -540, -720];
+    const dates = ['2017-12-01', '2019-01-01', '2019-08-22'];
+
+    const getTimezoneOffset = Date.prototype.getTimezoneOffset;
+
+    dates.forEach((date) => {
+      timeZoneOffsets.forEach((zone) => {
+        it(`sets the correct date for timezone offset ${zone}`, () => {
+          Date.prototype.getTimezoneOffset = () => zone; // eslint-disable-line no-extend-native
+
+          const wrapper = mountWithAppProvider(
+            <DateSelector
+              {...mockDefaultProps}
+              filterValue={DateFilterOption.OnOrBefore}
+            />,
+          );
+
+          trigger(wrapper.find(TextField), 'onChange', date);
+          trigger(wrapper.find(TextField), 'onBlur');
+
+          const selectedDate = wrapper
+            .find(DatePicker)
+            .prop('selected') as Date;
+          expect(selectedDate.toISOString()).toContain(date);
+          Date.prototype.getTimezoneOffset = getTimezoneOffset; // eslint-disable-line no-extend-native
+        });
+      });
+    });
+  });
+
   describe('filterKey and filterMinKey', () => {
     it('is used to calculate dateFilterOption and gets passed to Select as value', () => {
       const filterValue = 'filter value';
@@ -244,7 +275,7 @@ describe('<DateSelector />', () => {
       trigger(wrapper.find(Select), 'onChange', newDateFilter);
 
       expect(onFilterValueChangeSpy).toHaveBeenCalledWith(
-        '2019-05-28T00:00:00',
+        '2019-05-28T00:00:00.000Z',
       );
     });
 
@@ -265,7 +296,7 @@ describe('<DateSelector />', () => {
       trigger(wrapper.find(Select), 'onChange', newDateFilter);
 
       expect(onFilterValueChangeSpy).toHaveBeenCalledWith(
-        '2019-05-28T00:00:00',
+        '2019-05-28T00:00:00.000Z',
       );
     });
 
@@ -285,7 +316,7 @@ describe('<DateSelector />', () => {
       trigger(wrapper.find(DatePicker), 'onChange', {end: new Date(date)});
 
       expect(onFilterValueChangeSpy).toHaveBeenCalledWith(
-        '2019-05-28T00:00:00',
+        '2019-05-28T00:00:00.000Z',
       );
     });
 
@@ -306,32 +337,8 @@ describe('<DateSelector />', () => {
       trigger(wrapper.find(TextField), 'onBlur');
 
       expect(onFilterValueChangeSpy).toHaveBeenCalledWith(
-        '2019-08-22T00:00:00',
+        '2019-08-22T00:00:00.000Z',
       );
-    });
-
-    it('sets the correct date independent of the timezone', () => {
-      const date = '2019-08-22';
-      const getTimezoneOffset = Date.prototype.getTimezoneOffset;
-      const timeZoneOffsets = [540, 460, 300, 60, 0, -60, -460, -540];
-
-      timeZoneOffsets.forEach((zone) => {
-        Date.prototype.getTimezoneOffset = () => zone; // eslint-disable-line no-extend-native
-
-        const wrapper = mountWithAppProvider(
-          <DateSelector
-            {...mockDefaultProps}
-            filterValue={DateFilterOption.OnOrBefore}
-          />,
-        );
-
-        trigger(wrapper.find(TextField), 'onChange', date);
-        trigger(wrapper.find(TextField), 'onBlur');
-
-        const selectedDate = wrapper.find(DatePicker).prop('selected') as Date;
-        expect(selectedDate.toISOString()).toContain(date);
-        Date.prototype.getTimezoneOffset = getTimezoneOffset; // eslint-disable-line no-extend-native
-      });
     });
 
     it('gets called with undefined when date is updated in TextField with invalid date and TextField is blurred', () => {

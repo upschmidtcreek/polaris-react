@@ -1,7 +1,5 @@
 import * as React from 'react';
 import {autobind} from '@shopify/javascript-utilities/decorators';
-import padStart from 'lodash/padStart';
-
 import DatePicker, {Months, Year, Range} from '../../../../../DatePicker';
 import Select from '../../../../../Select';
 import TextField from '../../../../../TextField';
@@ -416,7 +414,7 @@ function getDateFilterOption(
 function formatDateForTimezone(date: Date) {
   const hourOffset = date.getTimezoneOffset() / 60;
 
-  if (hourOffset === 0) {
+  if (hourOffset === 0 || hourOffset === 12 || hourOffset === -12) {
     return date.toISOString();
   }
 
@@ -424,11 +422,13 @@ function formatDateForTimezone(date: Date) {
     hourOffset > -1
       ? date.getHours() + hourOffset
       : date.getHours() - hourOffset;
-  const updatedDate = new Date(date.setHours(midnight));
-  const month = padStart(String(updatedDate.getMonth() + 1), 2, '0');
 
-  const output = `${updatedDate.getFullYear()}-${month}-${updatedDate.getDate()}T00:00:00`;
-  return output;
+  const updatedDate = new Date(date.setHours(midnight));
+  const month = `0${String(updatedDate.getUTCMonth() + 1)}`.slice(-2);
+  const day = `0${String(updatedDate.getUTCDate())}`.slice(-2);
+
+  const formattedDate = `${updatedDate.getUTCFullYear()}-${month}-${day}T00:00:00.000Z`;
+  return formattedDate;
 }
 
 export default withAppProvider<Props>()(DateSelector);
