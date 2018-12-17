@@ -118,6 +118,8 @@ Use to have the stack’s items fill the horizontal space in the container and b
 </Stack>
 ```
 
+<a name="single-item-fills-remaining-space"></a>
+
 ### Stack where a single item fills the remaining space
 
 Use for aligning buttons or secondary content to the right edge of another element, allowing it to wrap below on small screens.
@@ -135,6 +137,19 @@ Use for aligning buttons or secondary content to the right edge of another eleme
   </Stack.Item>
 </Stack>
 ```
+
+---
+
+## Stack item
+
+The stack component will wrap each item in a stack item component unless an item has already been deliberately wrapped in a stack item component. Use the stack item component with the fill prop to force the item to fill the remaining horizontal space in the stack. See the [Stack where a single item fills the remaining space](#single-item-fills-remaining-space) example.
+
+### Stack item properties
+
+| Prop     | Type    | Description                                                    | Default |
+| -------- | ------- | -------------------------------------------------------------- | ------- |
+| fill     | boolean | Fill the available horizontal space in the stack with the item | false   |
+| children | any     | Elements to display inside stack item                          |         |
 
 ---
 

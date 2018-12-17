@@ -10,6 +10,8 @@ Use [the changelog guidelines](https://git.io/polaris-changelog-guidelines) to f
 
 ### Documentation
 
+- Add `Stack.Item` properties and description to [style guide](https://polaris.shopify.com)’s ([#772](https://github.com/Shopify/polaris-react/pull/772))
+
 ### Development workflow
 
 - Replaced our home-grown playground with Storybook (still acccessed through `yarn dev`) ([#768](https://github.com/Shopify/polaris-react/pull/768))
