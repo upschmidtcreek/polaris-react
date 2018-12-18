@@ -45,6 +45,27 @@ describe('<Card />', () => {
     expect(headerMarkup.find('Badge').text()).toBe(badgeString);
   });
 
+  it('can have any valid react element as the card section title', () => {
+    const titleString = 'Online store';
+    const badgeString = 'I am a badge';
+    const titleMarkup = (
+      <h2>
+        {titleString}
+        <Badge>{badgeString}</Badge>
+      </h2>
+    );
+
+    const card = mountWithAppProvider(
+      <Card>
+        <Card.Section title={titleMarkup} />
+      </Card>,
+    );
+    const headerMarkup = card.find('h2');
+
+    expect(headerMarkup.text().includes(titleString)).toBe(true);
+    expect(headerMarkup.find('Badge').text()).toBe(badgeString);
+  });
+
   it('exposes the header component', () => {
     const card = mountWithAppProvider(
       <Card>
