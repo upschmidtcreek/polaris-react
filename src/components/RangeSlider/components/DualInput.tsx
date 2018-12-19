@@ -141,10 +141,10 @@ export class DualInput extends React.Component<Props, State> {
       [`${cssVarPrefix}max`]: max,
       [`${cssVarPrefix}current-lower`]: valueLower,
       [`${cssVarPrefix}current-upper`]: valueUpper,
-      [`${cssVarPrefix}unselected-lower`]: `${sliderProgressLower}%`,
-      [`${cssVarPrefix}selected-lower`]: `${sliderProgressLower + 1}%`,
-      [`${cssVarPrefix}selected-upper`]: `${sliderProgressUpper - 1}%`,
-      [`${cssVarPrefix}unselected-upper`]: `${sliderProgressUpper}%`,
+      [`${cssVarPrefix}unselected-lower`]: `${sliderProgressLower - 1}%`,
+      [`${cssVarPrefix}selected-lower`]: `${sliderProgressLower}%`,
+      [`${cssVarPrefix}selected-upper`]: `${sliderProgressUpper}%`,
+      [`${cssVarPrefix}unselected-upper`]: `${sliderProgressUpper + 1}%`,
       [`${cssVarPrefix}output-factor-lower`]: invertNumber(
         (sliderProgressLower - 50) / 100,
       ),
@@ -152,6 +152,32 @@ export class DualInput extends React.Component<Props, State> {
         (sliderProgressUpper - 50) / 100,
       ),
     };
+
+    const classNameOutputLower = classNames(
+      styles.Output,
+      styles.DualInputLowerOutput,
+    );
+    const outputLowerMarkup = !disabled &&
+      output && (
+        <output htmlFor={idLower} className={classNameOutputLower}>
+          <div className={styles.OutputBubble}>
+            <span className={styles.OutputText}>{valueLower}</span>
+          </div>
+        </output>
+      );
+
+    const classNameOutputUpper = classNames(
+      styles.Output,
+      styles.DualInputUpperOutput,
+    );
+    const outputUpperMarkup = !disabled &&
+      output && (
+        <output htmlFor={idUpper} className={classNameOutputUpper}>
+          <div className={styles.OutputBubble}>
+            <span className={styles.OutputText}>{valueUpper}</span>
+          </div>
+        </output>
+      );
 
     const classNameLower = classNames(
       styles.DualInputThumbs,
@@ -161,15 +187,6 @@ export class DualInput extends React.Component<Props, State> {
       styles.DualInputThumbs,
       styles.DualInputUpperThumb,
     );
-
-    const outputLowerMarkup = !disabled &&
-      output && (
-        <output htmlFor={idLower} className={styles.Output}>
-          <div className={styles.OutputBubble}>
-            <span className={styles.OutputText}>{value}</span>
-          </div>
-        </output>
-      );
 
     return (
       <div className={styles.InputWrapper}>
@@ -203,7 +220,7 @@ export class DualInput extends React.Component<Props, State> {
             onFocus={onFocus}
             onBlur={onBlur}
           />
-          {outputLowerMarkup}
+          {outputUpperMarkup}
         </div>
       </div>
     );

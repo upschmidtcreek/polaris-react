@@ -221,13 +221,17 @@ $range-output-tip-size: rem(8px);
 $range-output-translate-x: calc(
   -50% + var(--Polaris-RangeSlider-output-factor, 0) * #{$range-thumb-size}
 );
+$range-dual-lower-output-translate-x: calc(
+  -50% + var(--Polaris-RangeSlider-output-factor-lower, 0) * #{$range-thumb-size}
+);
+$range-dual-upper-output-translate-x: calc(
+  -50% + var(--Polaris-RangeSlider-output-factor-upper, 0) * #{$range-thumb-size}
+);
 
 .Output {
   position: absolute;
   z-index: z-index('output', $stacking-order);
   bottom: $range-output-size - $range-output-tip-size;
-  left: var(--Polaris-RangeSlider-progress, 50%);
-  transform: translateX($range-output-translate-x);
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -241,6 +245,25 @@ $range-output-translate-x: calc(
     opacity: 1;
     visibility: visible;
   }
+
+  .DualInputLowerThumb:hover + &,
+  .DualInputLowerThumb:active + &,
+  .DualInputLowerThumb:focus + & {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .DualInputUpperThumb:hover + &,
+  .DualInputUpperThumb:active + &,
+  .DualInputUpperThumb:focus + & {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+.SingleOutput {
+  left: var(--Polaris-RangeSlider-progress, 50%);
+  transform: translateX($range-output-translate-x);
 }
 
 .OutputBubble {
@@ -279,6 +302,16 @@ $range-output-translate-x: calc(
       transform: translateY(-($range-thumb-size / 2));
     }
   }
+
+  .DualInputThumbs:hover + .Output &,
+  .DualInputThumbs:active + .Output &,
+  .DualInputThumbs:focus + .Output & {
+    transform: translateY(-$range-thumb-size);
+
+    @include page-content-when-not-partially-condensed {
+      transform: translateY(-($range-thumb-size / 2));
+    }
+  }
   // stylelint-enable selector-max-specificity
 }
 
@@ -289,4 +322,14 @@ $range-output-translate-x: calc(
   margin: auto;
   text-align: center;
   color: color('white');
+}
+
+.DualInputLowerOutput {
+  left: var(--Polaris-RangeSlider-selected-lower, 50%);
+  transform: translateX($range-dual-lower-output-translate-x);
+}
+
+.DualInputUpperOutput {
+  left: var(--Polaris-RangeSlider-selected-upper, 50%);
+  transform: translateX($range-dual-upper-output-translate-x);
 }
