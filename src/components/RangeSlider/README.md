@@ -29,6 +29,7 @@ Range sliders should:
 - When a label is visible, it should clearly communicate the purpose of the range input and its values (min, max, step, value)
 - Be labeled as “Optional” when you need to request input that’s not required
 - Validate input as soon as merchants have finished interacting with a field (but not before)
+- Always be used with [text field components](/components/forms/text-field) as the prefix and suffix when range slider has dual thumbs, to provide accessible alternatives to sliding the thumbs
 
 ---
 
