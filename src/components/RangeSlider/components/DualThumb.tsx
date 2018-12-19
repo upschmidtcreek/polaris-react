@@ -7,7 +7,7 @@ import {
 
 import {Error} from '../../../types';
 
-import * as styles from './DualInput.scss';
+import * as styles from './DualThumb.scss';
 
 export interface State {
   valueLower: number;
@@ -29,7 +29,7 @@ interface Props {
   onBlur?(): void;
 }
 
-export class DualInput extends React.Component<Props, State> {
+export default class DualThumb extends React.Component<Props, State> {
   state: State = {
     valueLower: this.props.value[0],
     valueUpper: this.props.value[1],

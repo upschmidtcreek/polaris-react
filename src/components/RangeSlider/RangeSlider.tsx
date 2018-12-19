@@ -6,7 +6,7 @@ import {classNames} from '@shopify/react-utilities/styles';
 import {Error} from '../../types';
 import {withAppProvider, WithAppProviderProps} from '../AppProvider';
 import Labelled, {Action, helpTextID} from '../Labelled';
-import {DualInput} from './components/DualInput';
+import DualThumb from './components/DualThumb';
 
 import * as styles from './RangeSlider.scss';
 
@@ -156,7 +156,7 @@ export class RangeSlider extends React.PureComponent<CombinedProps, State> {
     );
 
     const inputMarkup = dualInput ? (
-      <DualInput
+      <DualThumb
         id={id}
         value={value as [number, number]}
         min={min}
