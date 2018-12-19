@@ -6,6 +6,7 @@ import {classNames} from '@shopify/react-utilities/styles';
 import {Error} from '../../types';
 import {withAppProvider, WithAppProviderProps} from '../AppProvider';
 import Labelled, {Action, helpTextID} from '../Labelled';
+import {DualInput} from './components/DualInput';
 
 import * as styles from './RangeSlider.scss';
 
@@ -23,7 +24,7 @@ export interface BaseProps {
   /** ID for range input */
   id?: string;
   /** Initial value for range input */
-  value: number;
+  value: number | [number, number];
   /** Minimum possible value for range input */
   min?: number;
   /** Maximum possible value for range input */
@@ -43,7 +44,7 @@ export interface BaseProps {
   /** Element to display after the input */
   suffix?: React.ReactNode;
   /** Callback when the range input is changed */
-  onChange(value: number, id: string): void;
+  onChange(value: number | [number, number], id: string): void;
   /** Callback when range input is focused */
   onFocus?(): void;
   /** Callback when focus is removed */
@@ -88,9 +89,12 @@ export class RangeSlider extends React.PureComponent<CombinedProps, State> {
       disabled,
       prefix,
       suffix,
+      onChange,
       onFocus,
       onBlur,
     } = this.props;
+
+    const dualInput = typeof value === 'object';
 
     const describedBy: string[] = [];
 
@@ -106,7 +110,7 @@ export class RangeSlider extends React.PureComponent<CombinedProps, State> {
       ? describedBy.join(' ')
       : undefined;
 
-    const sliderProgress = ((value - min) * 100) / (max - min);
+    const sliderProgress = ((value as number - min) * 100) / (max - min);
 
     const cssVars = {
       [`${cssVarPrefix}min`]: min,
@@ -141,6 +145,53 @@ export class RangeSlider extends React.PureComponent<CombinedProps, State> {
       disabled && styles.disabled,
     );
 
+    const classNameInput = classNames(
+      styles.Input,
+      styles.SingleInput,
+    );
+
+    const inputMarkup = dualInput ? (
+      <DualInput
+        id={id}
+        value={value as [number, number]}
+        min={min}
+        max={max}
+        step={step}
+        output={output}
+        cssVarPrefix={cssVarPrefix}
+        error={error}
+        disabled={disabled}
+        onChange={onChange}
+        onFocus={onFocus}
+        onBlur={onBlur}
+      />
+    ) : (
+      <div className={styles.InputWrapper} style={cssVars}>
+        <div className={styles.InputWrapper}>
+          <input
+            type="range"
+            className={classNameInput}
+            id={id}
+            name={id}
+            min={min}
+            max={max}
+            step={step}
+            value={value as number}
+            disabled={disabled}
+            onChange={this.handleChange}
+            onFocus={onFocus}
+            onBlur={onBlur}
+            aria-valuemin={min}
+            aria-valuemax={max}
+            aria-valuenow={value as number}
+            aria-invalid={Boolean(error)}
+            aria-describedby={ariaDescribedBy}
+          />
+          {outputMarkup}
+        </div>
+      </div>
+    );
+
     return (
       <Labelled
         id={id}
@@ -150,30 +201,9 @@ export class RangeSlider extends React.PureComponent<CombinedProps, State> {
         labelHidden={labelHidden}
         helpText={helpText}
       >
-        <div className={className} style={cssVars}>
+        <div className={className}>
           {prefixMarkup}
-          <div className={styles.InputWrapper}>
-            <input
-              type="range"
-              className={styles.Input}
-              id={id}
-              name={id}
-              min={min}
-              max={max}
-              step={step}
-              value={value}
-              disabled={disabled}
-              onChange={this.handleChange}
-              onFocus={onFocus}
-              onBlur={onBlur}
-              aria-valuemin={min}
-              aria-valuemax={max}
-              aria-valuenow={value}
-              aria-invalid={Boolean(error)}
-              aria-describedby={ariaDescribedBy}
-            />
-            {outputMarkup}
-          </div>
+          {inputMarkup}
           {suffixMarkup}
         </div>
       </Labelled>
@@ -188,7 +218,7 @@ export class RangeSlider extends React.PureComponent<CombinedProps, State> {
       return;
     }
 
-    onChange(parseFloat(event.currentTarget.value), this.state.id);
+    onChange(parseFloat(event.currentTarget.value) as number, this.state.id);
   }
 }
 
