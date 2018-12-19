@@ -81,7 +81,7 @@ export class RangeSlider extends React.PureComponent<CombinedProps, State> {
       label,
       labelAction,
       labelHidden,
-      step = 1,
+      step,
       value,
       output,
       helpText,

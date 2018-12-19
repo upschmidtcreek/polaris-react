@@ -1,0 +1,29 @@
+.Wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.Rail {
+  position: absolute;
+  width: 100%;
+  height: rem(4px);
+  background-color: color('sky');
+}
+
+.LowerThumb {
+  position: absolute;
+  width: rem(16px);
+  height: rem(16px);
+  border-radius: 50%;
+  background-color: color('green');
+}
+
+.UpperThumb {
+  position: absolute;
+  width: rem(16px);
+  height: rem(16px);
+  border-radius: 50%;
+  background-color: color('red');
+}
