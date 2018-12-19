@@ -14,5 +14,9 @@ merge:
   ignore:
     - codecov/patch
 
+review:
+  checks:
+    - git clone -q --depth=1 git@github.com:Shopify/web.git ./webrepo && cd ./webrepo && yarn add @shopify/polaris@file:../ && yarn install && yarn run sk type-check && rm -rf webrepo
+
 deploy:
   max_commits: false
