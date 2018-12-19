@@ -1,240 +1,316 @@
 import * as React from 'react';
 import {autobind} from '@shopify/javascript-utilities/decorators';
-import {createUniqueIDFactory} from '@shopify/javascript-utilities/other';
 import {classNames} from '@shopify/react-utilities/styles';
+import {
+  addEventListener,
+  removeEventListener,
+} from '@shopify/javascript-utilities/events';
+import {invertNumber} from '../RangeSlider';
 
-import {Error} from '../../types';
-import {withAppProvider, WithAppProviderProps} from '../AppProvider';
-import Labelled, {Action, helpTextID} from '../Labelled';
-import {DualInput} from './components/DualInput';
+import {Error} from '../../../types';
 
-import * as styles from './RangeSlider.scss';
+import * as styles from '../RangeSlider.scss';
 
 export interface State {
-  id: string;
+  valueLower: number;
+  valueUpper: number;
+  mouseDownLower: boolean;
+  mouseDownUpper: boolean;
 }
 
-export interface BaseProps {
-  /** Label for the range input */
-  label: string;
-  /** Adds an action to the label */
-  labelAction?: Action;
-  /** Visually hide the label */
-  labelHidden?: boolean;
-  /** ID for range input */
-  id?: string;
-  /** Initial value for range input */
-  value: number | [number, number];
-  /** Minimum possible value for range input */
-  min?: number;
-  /** Maximum possible value for range input */
-  max?: number;
-  /** Increment value for range input changes */
+interface Props {
+  id: string;
+  cssVarPrefix: string;
+  value: [number, number];
+  min: number;
+  max: number;
   step?: number;
-  /** Provide a tooltip while sliding, indicating the current value */
   output?: boolean;
-  /** Additional text to aid in use */
-  helpText?: React.ReactNode;
-  /** Display an error message */
   error?: Error;
-  /** Disable input */
   disabled?: boolean;
-  /** Element to display before the input */
-  prefix?: React.ReactNode;
-  /** Element to display after the input */
-  suffix?: React.ReactNode;
-  /** Callback when the range input is changed */
-  onChange(value: number | [number, number], id: string): void;
-  /** Callback when range input is focused */
+  onChange(value: [number, number], id: string): void;
   onFocus?(): void;
-  /** Callback when focus is removed */
   onBlur?(): void;
 }
 
-export interface Props extends BaseProps {}
-export type CombinedProps = Props & WithAppProviderProps;
+export class DualInput extends React.Component<Props, State> {
+  state: State = {
+    valueLower: this.props.value[0],
+    valueUpper: this.props.value[1],
+    mouseDownLower: false,
+    mouseDownUpper: false,
+  };
 
-const getUniqueID = createUniqueIDFactory('RangeSlider');
-const cssVarPrefix = '--Polaris-RangeSlider-';
+  private rail = React.createRef<HTMLDivElement>();
+  private lowerThumb = React.createRef<HTMLDivElement>();
+  private upperThumb = React.createRef<HTMLDivElement>();
 
-export class RangeSlider extends React.PureComponent<CombinedProps, State> {
-  static getDerivedStateFromProps(nextProps: CombinedProps, prevState: State) {
-    return nextProps.id != null && nextProps.id !== prevState.id
-      ? {
-          id: nextProps.id || prevState.id,
-        }
-      : null;
+  componentDidMount() {
+    if (this.lowerThumb.current) {
+      addEventListener(
+        this.lowerThumb.current,
+        'mousedown',
+        this.handleLowerThumbMouseDown.bind(this),
+      );
+
+      addEventListener(
+        this.lowerThumb.current,
+        'mousemove',
+        this.handleLowerThumbMouseMove.bind(this),
+      );
+    }
+
+    if (this.upperThumb.current) {
+      addEventListener(
+        this.upperThumb.current,
+        'mousedown',
+        this.handleUpperThumbMouseDown.bind(this),
+      );
+
+      addEventListener(
+        this.upperThumb.current,
+        'mousemove',
+        this.handleUpperThumbMouseMove.bind(this),
+      );
+    }
+
+    addEventListener(document, 'mouseup', this.handleMouseUp.bind(this));
   }
 
-  constructor(props: CombinedProps) {
-    super(props);
+  componentWillUnmount() {
+    if (this.lowerThumb.current) {
+      removeEventListener(
+        this.lowerThumb.current,
+        'mousedown',
+        this.handleLowerThumbMouseDown.bind(this),
+      );
 
-    this.state = {
-      id: props.id || getUniqueID(),
-    };
+      removeEventListener(
+        this.lowerThumb.current,
+        'mousemove',
+        this.handleLowerThumbMouseMove.bind(this),
+      );
+    }
+
+    if (this.upperThumb.current) {
+      removeEventListener(
+        this.upperThumb.current,
+        'mousedown',
+        this.handleUpperThumbMouseDown.bind(this),
+      );
+
+      removeEventListener(
+        this.upperThumb.current,
+        'mousemove',
+        this.handleUpperThumbMouseMove.bind(this),
+      );
+    }
+
+    removeEventListener(document, 'mouseup', this.handleMouseUp.bind(this));
   }
 
   render() {
-    const {id} = this.state;
     const {min = 0, max = 100} = this.props;
     const {
-      label,
-      labelAction,
-      labelHidden,
-      step,
+      id,
+      cssVarPrefix,
       value,
       output,
-      helpText,
       error,
       disabled,
-      prefix,
-      suffix,
-      onChange,
       onFocus,
       onBlur,
     } = this.props;
 
-    const dualInput = typeof value === 'object';
+    const {valueLower, valueUpper} = this.state;
 
     const describedBy: string[] = [];
-
-    if (error) {
-      describedBy.push(`${id}Error`);
-    }
-
-    if (helpText) {
-      describedBy.push(helpTextID(id));
-    }
 
     const ariaDescribedBy = describedBy.length
       ? describedBy.join(' ')
       : undefined;
 
-    const sliderProgress = ((value as number - min) * 100) / (max - min);
+    const idLower = `${id}Lower`;
+    const idUpper = `${id}Upper`;
+
+    const sliderProgressLower = ((valueLower - min) * 100) / (max - min);
+    const sliderProgressUpper = ((valueUpper - min) * 100) / (max - min);
 
     const cssVars = {
       [`${cssVarPrefix}min`]: min,
       [`${cssVarPrefix}max`]: max,
-      [`${cssVarPrefix}current`]: value,
-      [`${cssVarPrefix}progress`]: `${sliderProgress}%`,
-      [`${cssVarPrefix}output-factor`]: invertNumber(
-        (sliderProgress - 50) / 100,
+      [`${cssVarPrefix}current-lower`]: valueLower,
+      [`${cssVarPrefix}current-upper`]: valueUpper,
+      [`${cssVarPrefix}unselected-lower`]: `${sliderProgressLower - 1}%`,
+      [`${cssVarPrefix}selected-lower`]: `${sliderProgressLower}%`,
+      [`${cssVarPrefix}selected-upper`]: `${sliderProgressUpper}%`,
+      [`${cssVarPrefix}unselected-upper`]: `${sliderProgressUpper + 1}%`,
+      [`${cssVarPrefix}output-factor-lower`]: invertNumber(
+        (sliderProgressLower - 50) / 100,
+      ),
+      [`${cssVarPrefix}output-factor-upper`]: invertNumber(
+        (sliderProgressUpper - 50) / 100,
       ),
     };
 
-    const classNameOutput = classNames(
+    const classNameOutputLower = classNames(
       styles.Output,
-      styles.SingleOutput,
+      styles.DualInputLowerOutput,
     );
-
-    const outputMarkup = !disabled &&
+    const outputLowerMarkup = !disabled &&
       output && (
-        <output htmlFor={id} className={classNameOutput}>
+        <output htmlFor={idLower} className={classNameOutputLower}>
           <div className={styles.OutputBubble}>
-            <span className={styles.OutputText}>{value}</span>
+            <span className={styles.OutputText}>{valueLower}</span>
           </div>
         </output>
       );
 
-    const prefixMarkup = prefix && (
-      <div className={styles.Prefix}>{prefix}</div>
+    const classNameOutputUpper = classNames(
+      styles.Output,
+      styles.DualInputUpperOutput,
     );
+    const outputUpperMarkup = !disabled &&
+      output && (
+        <output htmlFor={idUpper} className={classNameOutputUpper}>
+          <div className={styles.OutputBubble}>
+            <span className={styles.OutputText}>{valueUpper}</span>
+          </div>
+        </output>
+      );
 
-    const suffixMarkup = suffix && (
-      <div className={styles.Suffix}>{suffix}</div>
+    const classNameLower = classNames(
+      styles.DualInputThumbs,
+      styles.DualInputLowerThumb,
     );
-
-    const className = classNames(
-      styles.RangeSlider,
-      error && styles.error,
-      disabled && styles.disabled,
-    );
-
-    const classNameInput = classNames(
-      styles.Input,
-      styles.SingleInput,
-    );
-
-    const inputMarkup = dualInput ? (
-      <DualInput
-        id={id}
-        value={value as [number, number]}
-        min={min}
-        max={max}
-        step={step}
-        output={output}
-        cssVarPrefix={cssVarPrefix}
-        error={error}
-        disabled={disabled}
-        onChange={onChange}
-        onFocus={onFocus}
-        onBlur={onBlur}
-      />
-    ) : (
-      <div className={styles.InputWrapper} style={cssVars}>
-        <div className={styles.InputWrapper}>
-          <input
-            type="range"
-            className={classNameInput}
-            id={id}
-            name={id}
-            min={min}
-            max={max}
-            step={step}
-            value={value as number}
-            disabled={disabled}
-            onChange={this.handleChange}
-            onFocus={onFocus}
-            onBlur={onBlur}
-            aria-valuemin={min}
-            aria-valuemax={max}
-            aria-valuenow={value as number}
-            aria-invalid={Boolean(error)}
-            aria-describedby={ariaDescribedBy}
-          />
-          {outputMarkup}
-        </div>
-      </div>
+    const classNameUpper = classNames(
+      styles.DualInputThumbs,
+      styles.DualInputUpperThumb,
     );
 
     return (
-      <Labelled
-        id={id}
-        label={label}
-        error={error}
-        action={labelAction}
-        labelHidden={labelHidden}
-        helpText={helpText}
-      >
-        <div className={className}>
-          {prefixMarkup}
-          {inputMarkup}
-          {suffixMarkup}
+      <div className={styles.InputWrapper}>
+        <div className={styles.DualInputRail} style={cssVars} ref={this.rail}>
+          <div
+            className={classNameLower}
+            id={idLower}
+            ref={this.lowerThumb}
+            // role="slider"
+            aria-disabled={disabled}
+            aria-valuemin={min}
+            aria-valuemax={max}
+            aria-valuenow={valueLower}
+            aria-invalid={Boolean(error)}
+            aria-describedby={ariaDescribedBy}
+            onFocus={onFocus}
+            onBlur={onBlur}
+          />
+          {outputLowerMarkup}
+          <div
+            className={classNameUpper}
+            id={idUpper}
+            ref={this.upperThumb}
+            // role="slider"
+            aria-disabled={disabled}
+            aria-valuemin={min}
+            aria-valuemax={max}
+            aria-valuenow={valueUpper}
+            aria-invalid={Boolean(error)}
+            aria-describedby={ariaDescribedBy}
+            onFocus={onFocus}
+            onBlur={onBlur}
+          />
+          {outputUpperMarkup}
         </div>
-      </Labelled>
+      </div>
     );
   }
 
   @autobind
-  private handleChange(event: React.ChangeEvent<HTMLInputElement>) {
+  private handleChange() {
     const {onChange} = this.props;
 
-    if (onChange == null) {
-      return;
+    return onChange(
+      [this.state.valueLower, this.state.valueUpper] as [number, number],
+      this.props.id,
+    );
+  }
+
+  @autobind
+  private handleLowerThumbMouseDown() {
+    this.setState({mouseDownLower: true});
+  }
+
+  @autobind
+  private handleLowerThumbMouseMove(event: React.MouseEvent) {
+    if (this.state.mouseDownLower) {
+      const {min} = this.props;
+      const {valueUpper} = this.state;
+      let value = this.calculateThumbValue(event);
+
+      if (value && this.rail.current) {
+        if (value < min) {
+          value = min;
+        }
+
+        if (value >= valueUpper) {
+          // value = step ? valueUpper - step : valueUpper - 1;
+          value = valueUpper - 1;
+        }
+
+        this.setState({valueLower: value});
+      }
     }
+  }
 
-    onChange(parseFloat(event.currentTarget.value) as number, this.state.id);
+  @autobind
+  private handleUpperThumbMouseDown() {
+    this.setState({mouseDownUpper: true});
+  }
+
+  @autobind
+  private handleUpperThumbMouseMove(event: React.MouseEvent) {
+    if (this.state.mouseDownUpper) {
+      const {max} = this.props;
+      const {valueLower} = this.state;
+      let value = this.calculateThumbValue(event);
+
+      if (value && this.rail.current) {
+        if (value > max) {
+          value = max;
+        }
+
+        if (value <= valueLower) {
+          // value = step ? valueLower + step : valueLower + 1;
+          value = valueLower + 1;
+        }
+
+        this.setState({valueUpper: value});
+      }
+    }
+  }
+
+  @autobind
+  private handleMouseUp() {
+    this.setState({mouseDownUpper: false, mouseDownLower: false});
+
+    this.handleChange();
+  }
+
+  @autobind
+  private calculateThumbValue(event: React.MouseEvent) {
+    if (this.rail.current) {
+      // const {max, min, step} = this.props;
+      const rail = this.rail.current;
+      const railLength = rail.clientWidth;
+      const lowerBoundary =
+        event.pageX - rail.getBoundingClientRect().left + 12;
+      const rawValue = Math.floor((lowerBoundary / railLength) * 100);
+      // const rawStep = railLength / (max - min);
+      // const adjustedStep = step ? step * rawStep : rawStep;
+      // Math.floor(rawValue / adjustedStep) * adjustedStep;
+
+      return rawValue;
+    }
   }
 }
-
-export function invertNumber(number: number) {
-  if (Math.sign(number) === 1) {
-    return -Math.abs(number);
-  } else if (Math.sign(number) === -1) {
-    return Math.abs(number);
-  } else {
-    return 0;
-  }
-}
-
-export default withAppProvider<Props>()(RangeSlider);
