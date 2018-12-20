@@ -4,6 +4,8 @@ import {
   addEventListener,
   removeEventListener,
 } from '@shopify/javascript-utilities/events';
+import {classNames} from '@shopify/react-utilities/styles';
+import {invertNumber} from '../utilities';
 
 import {Error} from '../../../types';
 
@@ -58,18 +60,39 @@ export default class DualThumb extends React.Component<Props, State> {
   }
 
   render() {
+    const {cssVarPrefix, min, max} = this.props;
+    const {valueLower, valueUpper} = this.state;
+    const sliderProgressLower = ((valueLower - min) * 100) / (max - min);
+    const sliderProgressUpper = ((valueUpper - min) * 100) / (max - min);
+
+    const cssVars = {
+      [`${cssVarPrefix}unselected-lower`]: `${sliderProgressLower - 1}%`,
+      [`${cssVarPrefix}selected-lower`]: `${sliderProgressLower}%`,
+      [`${cssVarPrefix}selected-upper`]: `${sliderProgressUpper - 1}%`,
+      [`${cssVarPrefix}unselected-upper`]: `${sliderProgressUpper}%`,
+      [`${cssVarPrefix}output-factor-lower`]: invertNumber(
+        (sliderProgressLower - 50) / 100,
+      ),
+      [`${cssVarPrefix}output-factor-upper`]: invertNumber(
+        (sliderProgressUpper - 50) / 100,
+      ),
+    };
+
+    const classNameLowerThumb = classNames(styles.Thumbs, styles.LowerThumb);
+    const classNameUpperThumb = classNames(styles.Thumbs, styles.UpperThumb);
+
     return (
       <div className={styles.Wrapper}>
-        <div className={styles.Rail} ref={this.rail} />
+        <div className={styles.Rail} style={cssVars} ref={this.rail} />
         <div
-          className={styles.LowerThumb}
+          className={classNameLowerThumb}
           ref={this.lowerThumb}
           style={{
             left: `${this.state.valueLower}%`,
           }}
         />
         <div
-          className={styles.UpperThumb}
+          className={classNameUpperThumb}
           ref={this.upperThumb}
           style={{
             left: `calc(${this.state.valueUpper}%)`,

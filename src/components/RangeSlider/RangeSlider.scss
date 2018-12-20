@@ -10,12 +10,6 @@ $range-thumb-shadow: (0 0 0 rem(1px) rgba(black, 0.2), shadow(faint));
 $range-thumb-shadow-hover: (0 0 0 rem(1px) rgba(black, 0.4), shadow(faint));
 $range-thumb-shadow-error: 0 0 0 rem(1px) color('red');
 $range-thumb-shadow-focus: 0 0 0 rem(1px) color('indigo');
-$range-dual-thumbs-offsetTop: rem(10px); // half thumb size - borders
-$range-upper-thumb-offsetLeft: rem(48px); // twice thumb size
-$range-dual-thumbs-border: rem(1px) solid color('ink', 'lighter');
-$range-dual-thumbs-border-hover: rem(1px) solid color('sky', 'light');
-$range-dual-thumbs-border-error: rem(1px) solid color('sky', 'light');
-$range-dual-thumbs-border-focus: rem(1px) solid color('sky', 'light');
 
 .RangeSlider {
   position: relative;
@@ -153,79 +147,12 @@ $range-dual-thumbs-border-focus: rem(1px) solid color('sky', 'light');
   }
 }
 
-.DualInputRail {
-  --unselected-range: #{color('ink', 'lighter')};
-  --selected-range: #{color('indigo')};
-  --gradient-colors-dual: var(--unselected-range, transparent) 0%,
-    var(--unselected-range, transparent)
-      var(--Polaris-RangeSlider-unselected-lower),
-    var(--selected-range, transparent) var(--Polaris-RangeSlider-selected-lower),
-    var(--selected-range, transparent) var(--Polaris-RangeSlider-selected-upper),
-    var(--unselected-range, transparent)
-      var(--Polaris-RangeSlider-unselected-upper),
-    var(--unselected-range, transparent) 100%;
-  position: relative;
-  width: 100%;
-  height: $range-track-height;
-  border-radius: $range-thumb-size;
-  display: flex;
-  flex-wrap: nowrap;
-  cursor: pointer;
-  background-image: linear-gradient(to right, var(--gradient-colors-dual));
-}
-
-.DualInputThumbs {
-  position: relative;
-  top: -($range-dual-thumbs-offsetTop);
-  width: $range-thumb-size;
-  height: $range-thumb-size;
-  border-radius: 50%;
-  border: $range-dual-thumbs-border;
-  background: linear-gradient(color('sky', 'lighter'), color('sky', 'light'));
-
-  // &:focus {
-  //   // repeated so that `focus` can override `error`
-  //   --progress-lower: #{color('indigo')};
-
-  //   @include range-track-selectors {
-  //     background-color: color('sky', 'dark');
-  //   }
-
-  //   @include range-thumb-selectors {
-  //     background: linear-gradient(
-  //       color('sky', 'lighter'),
-  //       color('sky', 'light')
-  //     );
-  //     border-color: color('indigo');
-  //     box-shadow: $range-thumb-shadow-focus;
-  //   }
-  // }
-}
-
-.DualInputLowerThumb {
-  left: var(--Polaris-RangeSlider-selected-lower);
-}
-
-.DualInputUpperThumb {
-  left: var(--Polaris-RangeSlider-selected-upper);
-  margin-left: -($range-upper-thumb-offsetLeft);
-  // left: calc(
-  //   var(--Polaris-RangeSlider-selected-upper) - $range-upper-thumb-offsetLeft
-  // );
-}
-
 ///
 /// Output value indicator
 $range-output-size: rem(32px);
 $range-output-tip-size: rem(8px);
 $range-output-translate-x: calc(
   -50% + var(--Polaris-RangeSlider-output-factor, 0) * #{$range-thumb-size}
-);
-$range-dual-lower-output-translate-x: calc(
-  -50% + var(--Polaris-RangeSlider-output-factor-lower, 0) * #{$range-thumb-size}
-);
-$range-dual-upper-output-translate-x: calc(
-  -50% + var(--Polaris-RangeSlider-output-factor-upper, 0) * #{$range-thumb-size}
 );
 
 .Output {
@@ -242,20 +169,6 @@ $range-dual-upper-output-translate-x: calc(
   .Input:hover + &,
   .Input:active + &,
   .Input:focus + & {
-    opacity: 1;
-    visibility: visible;
-  }
-
-  .DualInputLowerThumb:hover + &,
-  .DualInputLowerThumb:active + &,
-  .DualInputLowerThumb:focus + & {
-    opacity: 1;
-    visibility: visible;
-  }
-
-  .DualInputUpperThumb:hover + &,
-  .DualInputUpperThumb:active + &,
-  .DualInputUpperThumb:focus + & {
     opacity: 1;
     visibility: visible;
   }
@@ -302,16 +215,6 @@ $range-dual-upper-output-translate-x: calc(
       transform: translateY(-($range-thumb-size / 2));
     }
   }
-
-  .DualInputThumbs:hover + .Output &,
-  .DualInputThumbs:active + .Output &,
-  .DualInputThumbs:focus + .Output & {
-    transform: translateY(-$range-thumb-size);
-
-    @include page-content-when-not-partially-condensed {
-      transform: translateY(-($range-thumb-size / 2));
-    }
-  }
   // stylelint-enable selector-max-specificity
 }
 
@@ -322,14 +225,4 @@ $range-dual-upper-output-translate-x: calc(
   margin: auto;
   text-align: center;
   color: color('white');
-}
-
-.DualInputLowerOutput {
-  left: var(--Polaris-RangeSlider-selected-lower, 50%);
-  transform: translateX($range-dual-lower-output-translate-x);
-}
-
-.DualInputUpperOutput {
-  left: var(--Polaris-RangeSlider-selected-upper, 50%);
-  transform: translateX($range-dual-upper-output-translate-x);
 }
