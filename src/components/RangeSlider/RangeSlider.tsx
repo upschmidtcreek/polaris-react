@@ -44,6 +44,8 @@ export interface BaseProps {
   prefix?: React.ReactNode;
   /** Element to display after the input */
   suffix?: React.ReactNode;
+  /** Displays text fields as the prefix and suffix for the dual thumb slider only */
+  accessibilityInputs?: boolean;
   /** Callback when the range input is changed */
   onChange(value: number | [number, number], id: string): void;
   /** Callback when range input is focused */
@@ -78,22 +80,25 @@ export class RangeSlider extends React.PureComponent<CombinedProps, State> {
   render() {
     const {id} = this.state;
     const {min = 0, max = 100} = this.props;
+    const {disabled = false} = this.props;
+    const {output = false} = this.props;
     const {
       label,
       labelAction,
       labelHidden,
       step = 1,
       value,
-      output,
       helpText,
       error,
-      disabled,
       prefix,
       suffix,
+      accessibilityInputs,
       onChange,
       onFocus,
       onBlur,
     } = this.props;
+
+    console.log('RangeSlider: ', value);
 
     const dualInput = typeof value === 'object';
 
@@ -151,11 +156,6 @@ export class RangeSlider extends React.PureComponent<CombinedProps, State> {
       disabled && styles.disabled,
     );
 
-    const classNameInput = classNames(
-      styles.Input,
-      styles.SingleInput,
-    );
-
     const inputMarkup = dualInput ? (
       <DualThumb
         id={id}
@@ -167,6 +167,7 @@ export class RangeSlider extends React.PureComponent<CombinedProps, State> {
         cssVarPrefix={cssVarPrefix}
         error={error}
         disabled={disabled}
+        accessibilityInputs={accessibilityInputs}
         onChange={onChange}
         onFocus={onFocus}
         onBlur={onBlur}
@@ -176,7 +177,7 @@ export class RangeSlider extends React.PureComponent<CombinedProps, State> {
         <div className={styles.InputWrapper}>
           <input
             type="range"
-            className={classNameInput}
+            className={styles.Input}
             id={id}
             name={id}
             min={min}

@@ -29,7 +29,7 @@ Range sliders should:
 - When a label is visible, it should clearly communicate the purpose of the range input and its values (min, max, step, value)
 - Be labeled as “Optional” when you need to request input that’s not required
 - Validate input as soon as merchants have finished interacting with a field (but not before)
-- Always be used with [text field components](/components/forms/text-field) as the prefix and suffix when range slider has dual thumbs, to provide accessible alternatives to sliding the thumbs
+- Always be used with `accessibilityInputs` when range slider has dual thumbs, to provide accessible alternatives to sliding the thumbs
 
 ---
 
@@ -219,6 +219,35 @@ class RangeSliderExample extends React.Component {
           onChange={this.handleChange}
           prefix={<p>Hue</p>}
           suffix={<p style={suffixStyles}>{this.state.value}</p>}
+        />
+      </Card>
+    );
+  }
+}
+```
+
+### Dual thumb range slider
+
+Use a dual thumb range slider when merchants need to select a range of values.
+
+```jsx
+class RangeSliderExample extends React.Component {
+  state = {
+    value: [32, 60],
+  };
+
+  handleChange = (value) => {
+    this.setState({value});
+  };
+
+  render() {
+    return (
+      <Card sectioned>
+        <RangeSlider
+          label=""
+          value={this.state.value}
+          onChange={this.handleChange}
+          accessibilityInputs
         />
       </Card>
     );

@@ -172,9 +172,6 @@ $range-output-translate-x: calc(
     opacity: 1;
     visibility: visible;
   }
-}
-
-.SingleOutput {
   left: var(--Polaris-RangeSlider-progress, 50%);
   transform: translateX($range-output-translate-x);
 }
