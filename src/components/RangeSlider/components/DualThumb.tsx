@@ -29,6 +29,8 @@ interface Props {
   output: boolean;
   error?: Error;
   disabled: boolean;
+  prefix?: React.ReactNode;
+  suffix?: React.ReactNode;
   accessibilityInputs?: boolean;
   onChange(value: [number, number], id: string): void;
   onFocus?(): void;
@@ -44,23 +46,23 @@ export default class DualThumb extends React.Component<Props, State> {
   };
 
   private rail = React.createRef<HTMLDivElement>();
-  private lowerThumb = React.createRef<HTMLDivElement>();
-  private upperThumb = React.createRef<HTMLDivElement>();
+  private thumbLower = React.createRef<HTMLDivElement>();
+  private thumbUpper = React.createRef<HTMLDivElement>();
 
   componentDidMount() {
-    if (this.lowerThumb.current && !this.props.disabled) {
+    if (this.thumbLower.current && !this.props.disabled) {
       addEventListener(
-        this.lowerThumb.current,
+        this.thumbLower.current,
         'mousedown',
-        this.handleLowerThumbMouseDown,
+        this.handleMouseDownThumbLower,
       );
     }
 
-    if (this.upperThumb.current && !this.props.disabled) {
+    if (this.thumbUpper.current && !this.props.disabled) {
       addEventListener(
-        this.upperThumb.current,
+        this.thumbUpper.current,
         'mousedown',
-        this.handleUpperThumbMouseDown,
+        this.handleMouseDownThumbUpper,
       );
     }
   }
@@ -71,6 +73,7 @@ export default class DualThumb extends React.Component<Props, State> {
       cssVarPrefix,
       min,
       max,
+      step,
       disabled,
       output,
       error,
@@ -89,6 +92,12 @@ export default class DualThumb extends React.Component<Props, State> {
       ? describedBy.join(' ')
       : undefined;
 
+    const maxCharacters = max.toString().length;
+    const fontSize = 16;
+    const accessibilityInputMinWidth = 132;
+    const accessibilityInputWidth =
+      maxCharacters * fontSize + accessibilityInputMinWidth;
+
     const cssVars = {
       [`${cssVarPrefix}progress-lower`]: `${valueLower + 1}%`,
       [`${cssVarPrefix}progress-upper`]: `${valueUpper + 1}%`,
@@ -101,7 +110,7 @@ export default class DualThumb extends React.Component<Props, State> {
     };
 
     const classNameOutputLower = classNames(styles.Output, styles.OutputLower);
-    const outputLowerMarkup = !disabled &&
+    const outputMarkupLower = !disabled &&
       output && (
         <output
           htmlFor={idLower}
@@ -117,13 +126,13 @@ export default class DualThumb extends React.Component<Props, State> {
       );
 
     const classNameOutputUpper = classNames(styles.Output, styles.OutputUpper);
-    const outputUpperMarkup = !disabled &&
+    const outputMarkupUpper = !disabled &&
       output && (
         <output
           htmlFor={idUpper}
           className={classNameOutputUpper}
           style={{
-            left: `${this.state.valueUpper}%`,
+            left: `calc(${this.state.valueUpper}%  - 24px)`,
           }}
         >
           <div className={styles.OutputBubble}>
@@ -132,28 +141,41 @@ export default class DualThumb extends React.Component<Props, State> {
         </output>
       );
 
-    const classNameWrapper = classNames(
-      styles.Wrapper,
+    const classNameTrackWrapper = classNames(
+      styles.TrackWrapper,
       error && styles.error,
       disabled && styles.disabled,
     );
 
-    const classNameLowerThumb = classNames(
+    const classNameThumbLower = classNames(
       styles.Thumbs,
-      styles.LowerThumb,
       disabled && styles.disabled,
     );
-    const classNameUpperThumb = classNames(
+    const classNameThumbUpper = classNames(
       styles.Thumbs,
-      styles.UpperThumb,
       disabled && styles.disabled,
     );
 
-    const prefixMarkup = accessibilityInputs ? (
-      <div className={styles.PrefixSuffix}>
+    const classNameAccessibilityInputLower = classNames(
+      styles.AccessibilityInputs,
+      styles.AccessibilityInputLower,
+    );
+    const classNameAccessibilityInputUpper = classNames(
+      styles.AccessibilityInputs,
+      styles.AccessibilityInputUpper,
+    );
+
+    const accessibilityPrefixMarkup = accessibilityInputs ? (
+      <div
+        className={classNameAccessibilityInputLower}
+        style={{width: `${accessibilityInputWidth}px`}}
+      >
         <TextField
           label=""
           labelHidden
+          type="number"
+          step={step}
+          disabled={disabled}
           value={this.state.accessibilityPrefix}
           onChange={this.handleTextFieldChangeLower}
           onBlur={this.handleTextFieldBlurLower}
@@ -161,11 +183,17 @@ export default class DualThumb extends React.Component<Props, State> {
       </div>
     ) : null;
 
-    const suffixMarkup = accessibilityInputs ? (
-      <div className={styles.PrefixSuffix}>
+    const accessibilitySuffixMarkup = accessibilityInputs ? (
+      <div
+        className={classNameAccessibilityInputUpper}
+        style={{width: `${accessibilityInputWidth}px`}}
+      >
         <TextField
           label=""
           labelHidden
+          type="number"
+          step={step}
+          disabled={disabled}
           value={this.state.accessibilitySuffix}
           onChange={this.handleTextFieldChangeUpper}
           onBlur={this.handleTextFieldBlurUpper}
@@ -174,14 +202,14 @@ export default class DualThumb extends React.Component<Props, State> {
     ) : null;
 
     return (
-      <div className={styles.PrefixSuffixWrapper}>
-        {prefixMarkup}
-        <div className={classNameWrapper}>
+      <div className={styles.Wrapper}>
+        {accessibilityPrefixMarkup}
+        <div className={classNameTrackWrapper}>
           <div className={styles.Track} style={cssVars} ref={this.rail} />
           <div
             id={idLower}
-            className={classNameLowerThumb}
-            ref={this.lowerThumb}
+            className={classNameThumbLower}
+            ref={this.thumbLower}
             style={{
               left: `${this.state.valueLower}%`,
             }}
@@ -195,13 +223,13 @@ export default class DualThumb extends React.Component<Props, State> {
             onFocus={onFocus}
             onBlur={onBlur}
           />
-          {outputLowerMarkup}
+          {outputMarkupLower}
           <div
             id={idUpper}
-            className={classNameUpperThumb}
-            ref={this.upperThumb}
+            className={classNameThumbUpper}
+            ref={this.thumbUpper}
             style={{
-              left: `${this.state.valueUpper}%`,
+              left: `calc(${this.state.valueUpper}% - 24px)`,
             }}
             role="slider"
             aria-disabled={disabled}
@@ -213,17 +241,17 @@ export default class DualThumb extends React.Component<Props, State> {
             onFocus={onFocus}
             onBlur={onBlur}
           />
-          {outputUpperMarkup}
+          {outputMarkupUpper}
         </div>
-        {suffixMarkup}
+        {accessibilitySuffixMarkup}
       </div>
     );
   }
 
   @autobind
-  private handleLowerThumbMouseDown() {
-    if (this.lowerThumb.current) {
-      addEventListener(document, 'mousemove', this.handleLowerThumbMouseMove);
+  private handleMouseDownThumbLower() {
+    if (this.thumbLower.current) {
+      addEventListener(document, 'mousemove', this.handleMouseMoveThumbLower);
       addEventListener(
         document,
         'mouseup',
@@ -231,7 +259,7 @@ export default class DualThumb extends React.Component<Props, State> {
           removeEventListener(
             document,
             'mousemove',
-            this.handleLowerThumbMouseMove,
+            this.handleMouseMoveThumbLower,
           );
         },
         {once: true},
@@ -240,7 +268,7 @@ export default class DualThumb extends React.Component<Props, State> {
   }
 
   @autobind
-  private handleLowerThumbMouseMove(event: MouseEvent) {
+  private handleMouseMoveThumbLower(event: MouseEvent) {
     if (this.rail.current) {
       const clientRect = this.rail.current.getBoundingClientRect();
 
@@ -267,9 +295,9 @@ export default class DualThumb extends React.Component<Props, State> {
   }
 
   @autobind
-  private handleUpperThumbMouseDown() {
-    if (this.upperThumb.current) {
-      addEventListener(document, 'mousemove', this.handleUpperThumbMouseMove);
+  private handleMouseDownThumbUpper() {
+    if (this.thumbUpper.current) {
+      addEventListener(document, 'mousemove', this.handleMouseMoveThumbUpper);
       addEventListener(
         document,
         'mouseup',
@@ -277,7 +305,7 @@ export default class DualThumb extends React.Component<Props, State> {
           removeEventListener(
             document,
             'mousemove',
-            this.handleUpperThumbMouseMove,
+            this.handleMouseMoveThumbUpper,
           );
         },
         {once: true},
@@ -286,11 +314,12 @@ export default class DualThumb extends React.Component<Props, State> {
   }
 
   @autobind
-  private handleUpperThumbMouseMove(event: MouseEvent) {
+  private handleMouseMoveThumbUpper(event: MouseEvent) {
     if (this.rail.current) {
       const clientRect = this.rail.current.getBoundingClientRect();
 
       const relativeX = event.clientX - clientRect.left;
+      // const thumbWidth = 24;
 
       const percentage = (relativeX / clientRect.width) * 100;
 

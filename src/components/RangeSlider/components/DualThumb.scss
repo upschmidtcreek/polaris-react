@@ -10,8 +10,15 @@ $range-thumb-size: rem(24px);
 $range-thumb-border-size: rem(2px);
 $range-thumbs-border: rem(1px) solid color('sky', 'dark');
 $range-thumbs-border-error: rem(2px) solid color('red');
+$range-accessibility-input-margin: rem(8px);
 
 .Wrapper {
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.TrackWrapper {
   position: relative;
   display: flex;
   align-items: center;
@@ -24,14 +31,17 @@ $range-thumbs-border-error: rem(2px) solid color('red');
   }
 }
 
-.PrefixSuffixWrapper {
-  width: 100%;
-  display: flex;
-  align-items: center;
+// .AccessibilityInputs {
+//   width: var(--Polaris-RangeSlider-accessibility-input-width);
+//   width: 72px;
+// }
+
+.AccessibilityInputLower {
+  margin-right: $range-accessibility-input-margin;
 }
 
-.PrefixSuffix {
-  width: rem(70px);
+.AccessibilityInputUpper {
+  margin-left: $range-accessibility-input-margin;
 }
 
 .Track {
@@ -91,10 +101,10 @@ $range-thumbs-border-error: rem(2px) solid color('red');
 
 $range-output-size: rem(32px);
 $range-output-tip-size: rem(8px);
-$range-lower-output-translate-x: calc(
+$range-output-translate-x-lower: calc(
   -10% + var(--Polaris-RangeSlider-output-factor-lower, 0) * #{$range-thumb-size}
 );
-$range-upper-output-translate-x: calc(
+$range-output-translate-x-upper: calc(
   -10% + var(--Polaris-RangeSlider-output-factor-upper, 0) * #{$range-thumb-size}
 );
 
@@ -109,16 +119,16 @@ $range-upper-output-translate-x: calc(
   transition-duration: duration();
   transition-timing-function: easing();
 
-  .LowerThumb:hover + &,
-  .LowerThumb:active + &,
-  .LowerThumb:focus + & {
+  .ThumbLower:hover + &,
+  .ThumbLower:active + &,
+  .ThumbLower:focus + & {
     opacity: 1;
     visibility: visible;
   }
 
-  .UpperThumb:hover + &,
-  .UpperThumb:active + &,
-  .UpperThumb:focus + & {
+  .ThumbUpper:hover + &,
+  .ThumbUpper:active + &,
+  .ThumbUpper:focus + & {
     opacity: 1;
     visibility: visible;
   }
@@ -171,9 +181,9 @@ $range-upper-output-translate-x: calc(
 }
 
 .OutputLower {
-  transform: translateX($range-lower-output-translate-x);
+  transform: translateX($range-output-translate-x-lower);
 }
 
 .OutputUpper {
-  transform: translateX($range-upper-output-translate-x);
+  transform: translateX($range-output-translate-x-upper);
 }

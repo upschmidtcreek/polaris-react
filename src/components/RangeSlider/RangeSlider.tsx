@@ -98,9 +98,7 @@ export class RangeSlider extends React.PureComponent<CombinedProps, State> {
       onBlur,
     } = this.props;
 
-    console.log('RangeSlider: ', value);
-
-    const dualInput = typeof value === 'object';
+    const dualThumb = typeof value === 'object';
 
     const describedBy: string[] = [];
 
@@ -142,11 +140,11 @@ export class RangeSlider extends React.PureComponent<CombinedProps, State> {
         </output>
       );
 
-    const prefixMarkup = prefix && (
+    const prefixMarkup = prefix && !dualThumb && (
       <div className={styles.Prefix}>{prefix}</div>
     );
 
-    const suffixMarkup = suffix && (
+    const suffixMarkup = suffix && !dualThumb && (
       <div className={styles.Suffix}>{suffix}</div>
     );
 
@@ -156,7 +154,7 @@ export class RangeSlider extends React.PureComponent<CombinedProps, State> {
       disabled && styles.disabled,
     );
 
-    const inputMarkup = dualInput ? (
+    const inputMarkup = dualThumb ? (
       <DualThumb
         id={id}
         value={value as [number, number]}
