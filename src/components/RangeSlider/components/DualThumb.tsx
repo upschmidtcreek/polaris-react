@@ -74,6 +74,8 @@ export default class DualThumb extends React.Component<Props, State> {
       min,
       max,
       step,
+      prefix,
+      suffix,
       disabled,
       output,
       error,
@@ -166,15 +168,14 @@ export default class DualThumb extends React.Component<Props, State> {
     );
 
     const accessibilityPrefixMarkup = accessibilityInputs ? (
-      <div
-        className={classNameAccessibilityInputLower}
-        style={{width: `${accessibilityInputWidth}px`}}
-      >
+      <div className={classNameAccessibilityInputLower}>
         <TextField
           label=""
           labelHidden
           type="number"
           step={step}
+          prefix={prefix}
+          suffix={suffix}
           disabled={disabled}
           value={this.state.accessibilityPrefix}
           onChange={this.handleTextFieldChangeLower}
@@ -184,15 +185,14 @@ export default class DualThumb extends React.Component<Props, State> {
     ) : null;
 
     const accessibilitySuffixMarkup = accessibilityInputs ? (
-      <div
-        className={classNameAccessibilityInputUpper}
-        style={{width: `${accessibilityInputWidth}px`}}
-      >
+      <div className={classNameAccessibilityInputUpper}>
         <TextField
           label=""
           labelHidden
           type="number"
           step={step}
+          prefix={prefix}
+          suffix={suffix}
           disabled={disabled}
           value={this.state.accessibilitySuffix}
           onChange={this.handleTextFieldChangeUpper}
@@ -203,7 +203,6 @@ export default class DualThumb extends React.Component<Props, State> {
 
     return (
       <div className={styles.Wrapper}>
-        {accessibilityPrefixMarkup}
         <div className={classNameTrackWrapper}>
           <div className={styles.Track} style={cssVars} ref={this.rail} />
           <div
@@ -243,7 +242,10 @@ export default class DualThumb extends React.Component<Props, State> {
           />
           {outputMarkupUpper}
         </div>
-        {accessibilitySuffixMarkup}
+        <div className={styles.AccessibilityInputsWrapper}>
+          {accessibilityPrefixMarkup}
+          {accessibilitySuffixMarkup}
+        </div>
       </div>
     );
   }

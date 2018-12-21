@@ -164,6 +164,8 @@ export class RangeSlider extends React.PureComponent<CombinedProps, State> {
         output={output}
         cssVarPrefix={cssVarPrefix}
         error={error}
+        prefix={prefix}
+        suffix={suffix}
         disabled={disabled}
         accessibilityInputs={accessibilityInputs}
         onChange={onChange}

@@ -13,9 +13,8 @@ $range-thumbs-border-error: rem(2px) solid color('red');
 $range-accessibility-input-margin: rem(8px);
 
 .Wrapper {
+  position: relative;
   width: 100%;
-  display: flex;
-  align-items: center;
 }
 
 .TrackWrapper {
@@ -31,10 +30,12 @@ $range-accessibility-input-margin: rem(8px);
   }
 }
 
-// .AccessibilityInputs {
-//   width: var(--Polaris-RangeSlider-accessibility-input-width);
-//   width: 72px;
-// }
+.AccessibilityInputsWrapper {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  margin-top: $range-accessibility-input-margin;
+}
 
 .AccessibilityInputLower {
   margin-right: $range-accessibility-input-margin;
