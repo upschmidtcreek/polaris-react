@@ -33,15 +33,18 @@ $range-accessibility-input-margin: rem(8px);
 .AccessibilityInputsWrapper {
   width: 100%;
   display: flex;
-  align-items: center;
+  justify-content: space-between;
   margin-top: $range-accessibility-input-margin;
 }
 
 .AccessibilityInputLower {
+  min-width: rem(80px);
+  max-width: rem(200px);
   margin-right: $range-accessibility-input-margin;
 }
 
 .AccessibilityInputUpper {
+  min-width: rem(80px);
   margin-left: $range-accessibility-input-margin;
 }
 

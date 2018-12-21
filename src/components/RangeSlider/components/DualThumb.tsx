@@ -94,12 +94,6 @@ export default class DualThumb extends React.Component<Props, State> {
       ? describedBy.join(' ')
       : undefined;
 
-    const maxCharacters = max.toString().length;
-    const fontSize = 16;
-    const accessibilityInputMinWidth = 132;
-    const accessibilityInputWidth =
-      maxCharacters * fontSize + accessibilityInputMinWidth;
-
     const cssVars = {
       [`${cssVarPrefix}progress-lower`]: `${valueLower + 1}%`,
       [`${cssVarPrefix}progress-upper`]: `${valueUpper + 1}%`,
