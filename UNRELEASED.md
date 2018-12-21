@@ -38,3 +38,4 @@ Use [the changelog guidelines](https://git.io/polaris-changelog-guidelines) to f
 ### Code quality
 
 - Improve `withAppProvider`, `withSticky`, `withRef`, and `withContext` types to allow them to infer a components props ([#805](https://github.com/Shopify/polaris-react/pull/805))
+- Refactored `Frame` and its subcomponents to use the `createContext` API instead of legacy context ([#803](https://github.com/Shopify/polaris-react/pull/803))
