@@ -6,17 +6,15 @@ import {
 } from '@shopify/javascript-utilities/events';
 import {classNames} from '@shopify/react-utilities/styles';
 import TextField from '../../TextField';
-import {invertNumber} from '../utilities';
 
-import {Error} from '../../../types';
+import {Error, Key} from '../../../types';
 
 import * as styles from './DualThumb.scss';
 
 export interface State {
   valueLower: number;
   valueUpper: number;
-  accessibilityPrefix: string;
-  accessibilitySuffix: string;
+  trackWidth: number;
 }
 
 interface Props {
@@ -41,21 +39,56 @@ export default class DualThumb extends React.Component<Props, State> {
   state: State = {
     valueLower: this.props.value[0],
     valueUpper: this.props.value[1],
-    accessibilityPrefix: `${this.props.value[0]}`,
-    accessibilitySuffix: `${this.props.value[1]}`,
+    trackWidth: 0,
   };
 
-  private rail = React.createRef<HTMLDivElement>();
+  accessibilityPrefix = `${this.state.valueLower}`;
+  accessibilitySuffix = `${this.state.valueUpper}`;
+
+  THUMB_SIZE = 24;
+  OUTPUT_TIP_SIZE = 8;
+
+  private track = React.createRef<HTMLDivElement>();
   private thumbLower = React.createRef<HTMLDivElement>();
   private thumbUpper = React.createRef<HTMLDivElement>();
 
   componentDidMount() {
+    this.setState({
+      valueLower: keepValueWithinBoundsLower(
+        this.state.valueLower,
+        this.state.valueUpper,
+        this.props.min,
+        this.props.step,
+      ),
+    });
+
+    this.setState({
+      valueUpper: keepValueWithinBoundsUpper(
+        this.state.valueUpper,
+        this.state.valueLower,
+        this.props.max,
+        this.props.step,
+      ),
+    });
+
+    if (this.track.current) {
+      this.setState({
+        trackWidth: this.track.current.getBoundingClientRect().width,
+      });
+    }
+
     if (this.thumbLower.current && !this.props.disabled) {
+      console.log('thumb did mount');
       addEventListener(
         this.thumbLower.current,
         'mousedown',
         this.handleMouseDownThumbLower,
       );
+      // addEventListener(
+      //   this.thumbLower.current,
+      //   'keyup',
+      //   this.handleKeypressLower,
+      // );
     }
 
     if (this.thumbUpper.current && !this.props.disabled) {
@@ -64,6 +97,11 @@ export default class DualThumb extends React.Component<Props, State> {
         'mousedown',
         this.handleMouseDownThumbUpper,
       );
+      // addEventListener(
+      //   this.thumbUpper.current,
+      //   'keyup',
+      //   this.handleKeypressUpper,
+      // );
     }
   }
 
@@ -94,49 +132,6 @@ export default class DualThumb extends React.Component<Props, State> {
       ? describedBy.join(' ')
       : undefined;
 
-    const cssVars = {
-      [`${cssVarPrefix}progress-lower`]: `${valueLower + 1}%`,
-      [`${cssVarPrefix}progress-upper`]: `${valueUpper + 1}%`,
-      [`${cssVarPrefix}output-factor-lower`]: invertNumber(
-        (valueLower - 50) / 100,
-      ),
-      [`${cssVarPrefix}output-factor-upper`]: invertNumber(
-        (valueUpper - 50) / 100,
-      ),
-    };
-
-    const classNameOutputLower = classNames(styles.Output, styles.OutputLower);
-    const outputMarkupLower = !disabled &&
-      output && (
-        <output
-          htmlFor={idLower}
-          className={classNameOutputLower}
-          style={{
-            left: `${this.state.valueLower}%`,
-          }}
-        >
-          <div className={styles.OutputBubble}>
-            <span className={styles.OutputText}>{valueLower}</span>
-          </div>
-        </output>
-      );
-
-    const classNameOutputUpper = classNames(styles.Output, styles.OutputUpper);
-    const outputMarkupUpper = !disabled &&
-      output && (
-        <output
-          htmlFor={idUpper}
-          className={classNameOutputUpper}
-          style={{
-            left: `calc(${this.state.valueUpper}%  - 24px)`,
-          }}
-        >
-          <div className={styles.OutputBubble}>
-            <span className={styles.OutputText}>{valueUpper}</span>
-          </div>
-        </output>
-      );
-
     const classNameTrackWrapper = classNames(
       styles.TrackWrapper,
       error && styles.error,
@@ -145,10 +140,12 @@ export default class DualThumb extends React.Component<Props, State> {
 
     const classNameThumbLower = classNames(
       styles.Thumbs,
+      styles.ThumbLower,
       disabled && styles.disabled,
     );
     const classNameThumbUpper = classNames(
       styles.Thumbs,
+      styles.ThumbUpper,
       disabled && styles.disabled,
     );
 
@@ -164,16 +161,17 @@ export default class DualThumb extends React.Component<Props, State> {
     const accessibilityPrefixMarkup = accessibilityInputs ? (
       <div className={classNameAccessibilityInputLower}>
         <TextField
-          label=""
+          label="Lower value"
           labelHidden
           type="number"
           step={step}
           prefix={prefix}
           suffix={suffix}
           disabled={disabled}
-          value={this.state.accessibilityPrefix}
+          value={this.accessibilityPrefix}
+          // value={`${this.state.valueLower}`}
           onChange={this.handleTextFieldChangeLower}
-          onBlur={this.handleTextFieldBlurLower}
+          // onBlur={this.handleTextFieldBlurLower}
         />
       </div>
     ) : null;
@@ -181,30 +179,82 @@ export default class DualThumb extends React.Component<Props, State> {
     const accessibilitySuffixMarkup = accessibilityInputs ? (
       <div className={classNameAccessibilityInputUpper}>
         <TextField
-          label=""
+          label="Upper value"
           labelHidden
           type="number"
           step={step}
           prefix={prefix}
           suffix={suffix}
           disabled={disabled}
-          value={this.state.accessibilitySuffix}
+          value={this.accessibilitySuffix}
+          // value={`${this.state.valueUpper}`}
           onChange={this.handleTextFieldChangeUpper}
-          onBlur={this.handleTextFieldBlurUpper}
+          // onBlur={this.handleTextFieldBlurUpper}
         />
       </div>
     ) : null;
 
+    const trackWidth = this.state.trackWidth;
+    const adjustedTrackWidth = trackWidth - this.THUMB_SIZE;
+    const range = max - min;
+
+    const leftPositionThumbLower = (valueLower / range) * adjustedTrackWidth;
+    const leftPositionThumbUpper = (valueUpper / range) * adjustedTrackWidth;
+
+    const classNameOutputLower = classNames(styles.Output, styles.OutputLower);
+    const outputMarkupLower = !disabled &&
+      output && (
+        <output
+          htmlFor={idLower}
+          className={classNameOutputLower}
+          style={{
+            left: `calc(${leftPositionThumbLower}px - ${
+              this.OUTPUT_TIP_SIZE
+            }px)`,
+          }}
+        >
+          <div className={styles.OutputBubble}>
+            <span className={styles.OutputText}>{valueLower}</span>
+          </div>
+        </output>
+      );
+
+    const classNameOutputUpper = classNames(styles.Output, styles.OutputUpper);
+    const outputMarkupUpper = !disabled &&
+      output && (
+        <output
+          htmlFor={idUpper}
+          className={classNameOutputUpper}
+          style={{
+            left: `calc(${leftPositionThumbUpper}px  - ${
+              this.OUTPUT_TIP_SIZE
+            }px)`,
+            // left: `calc(${leftPositionThumbUpper}%  - ${this.OUTPUT_TIP_SIZE +
+            //   this.THUMB_SIZE}px)`,
+          }}
+        >
+          <div className={styles.OutputBubble}>
+            <span className={styles.OutputText}>{valueUpper}</span>
+          </div>
+        </output>
+      );
+
+    const cssVars = {
+      [`${cssVarPrefix}progress-lower`]: `${leftPositionThumbLower}px`,
+      [`${cssVarPrefix}progress-upper`]: `${leftPositionThumbUpper}px`,
+    };
+
     return (
       <div className={styles.Wrapper}>
         <div className={classNameTrackWrapper}>
-          <div className={styles.Track} style={cssVars} ref={this.rail} />
+          <div className={styles.Track} style={cssVars} ref={this.track} />
           <div
             id={idLower}
             className={classNameThumbLower}
             ref={this.thumbLower}
             style={{
-              left: `${this.state.valueLower}%`,
+              // left: `${this.state.valueLower}%`,
+              left: `${leftPositionThumbLower}px`,
             }}
             role="slider"
             aria-disabled={disabled}
@@ -213,16 +263,35 @@ export default class DualThumb extends React.Component<Props, State> {
             aria-valuenow={valueLower}
             aria-invalid={Boolean(error)}
             aria-describedby={ariaDescribedBy}
+            tabIndex={1}
             onFocus={onFocus}
             onBlur={onBlur}
-          />
+          >
+            {/* <KeypressListener
+              keyCode={Key.DownArrow}
+              handler={this.handleKeypressDecrementLower}
+            />
+            <KeypressListener
+              keyCode={Key.LeftArrow}
+              handler={this.handleKeypressDecrementLower}
+            />
+            <KeypressListener
+              keyCode={Key.UpArrow}
+              handler={this.handleKeypressIncrementLower}
+            />
+            <KeypressListener
+              keyCode={Key.RightArrow}
+              handler={this.handleKeypressIncrementLower}
+            /> */}
+          </div>
           {outputMarkupLower}
           <div
             id={idUpper}
             className={classNameThumbUpper}
             ref={this.thumbUpper}
             style={{
-              left: `calc(${this.state.valueUpper}% - 24px)`,
+              left: `${leftPositionThumbUpper}px`,
+              // left: `calc(${leftPositionThumbUpper}% - ${this.THUMB_SIZE}px)`,
             }}
             role="slider"
             aria-disabled={disabled}
@@ -231,9 +300,27 @@ export default class DualThumb extends React.Component<Props, State> {
             aria-valuenow={valueLower}
             aria-invalid={Boolean(error)}
             aria-describedby={ariaDescribedBy}
+            tabIndex={1}
             onFocus={onFocus}
             onBlur={onBlur}
-          />
+          >
+            {/* <KeypressListener
+              keyCode={Key.DownArrow}
+              handler={this.handleKeypressDecrementUpper}
+            />
+            <KeypressListener
+              keyCode={Key.LeftArrow}
+              handler={this.handleKeypressDecrementUpper}
+            />
+            <KeypressListener
+              keyCode={Key.UpArrow}
+              handler={this.handleKeypressIncrementUpper}
+            />
+            <KeypressListener
+              keyCode={Key.RightArrow}
+              handler={this.handleKeypressIncrementUpper}
+            /> */}
+          </div>
           {outputMarkupUpper}
         </div>
         <div className={styles.AccessibilityInputsWrapper}>
@@ -265,28 +352,30 @@ export default class DualThumb extends React.Component<Props, State> {
 
   @autobind
   private handleMouseMoveThumbLower(event: MouseEvent) {
-    if (this.rail.current) {
-      const clientRect = this.rail.current.getBoundingClientRect();
+    if (this.track.current) {
+      const {min, max, step} = this.props;
+      const clientRect = this.track.current.getBoundingClientRect();
 
       const relativeX = event.clientX - clientRect.left;
 
-      const percentage = (relativeX / clientRect.width) * 100;
+      const percentageOfTrack =
+        relativeX / (clientRect.width - this.THUMB_SIZE);
+      const percentageOfRange = percentageOfTrack * (max - min);
 
-      const steppedPercentage = this.props.step
-        ? roundToNearestStepValue(percentage, this.props.step)
-        : percentage;
+      const steppedPercentageOfRange = roundToNearestStepValue(
+        percentageOfRange,
+        step,
+      );
 
-      if (steppedPercentage <= 0) {
-        this.setState({valueLower: 0});
-      } else if (steppedPercentage >= this.state.valueUpper) {
-        const {valueUpper} = this.state;
-        const valueLessStep = valueUpper - this.props.step;
-        this.setState({valueLower: valueLessStep});
-      } else {
-        this.setState({valueLower: steppedPercentage}, () => {
-          this.handleChange();
-        });
-      }
+      const valueWithinBoundsLower = keepValueWithinBoundsLower(
+        steppedPercentageOfRange,
+        this.state.valueUpper,
+        min,
+        step,
+      );
+      this.setState({valueLower: valueWithinBoundsLower}, () => {
+        this.handleChange();
+      });
     }
   }
 
@@ -311,29 +400,30 @@ export default class DualThumb extends React.Component<Props, State> {
 
   @autobind
   private handleMouseMoveThumbUpper(event: MouseEvent) {
-    if (this.rail.current) {
-      const clientRect = this.rail.current.getBoundingClientRect();
+    if (this.track.current) {
+      const {min, max, step} = this.props;
+      const clientRect = this.track.current.getBoundingClientRect();
 
       const relativeX = event.clientX - clientRect.left;
-      // const thumbWidth = 24;
 
-      const percentage = (relativeX / clientRect.width) * 100;
+      const percentageOfTrack =
+        relativeX / (clientRect.width - this.THUMB_SIZE);
+      const percentageOfRange = percentageOfTrack * (max - min);
 
-      const steppedPercentage = this.props.step
-        ? roundToNearestStepValue(percentage, this.props.step)
-        : percentage;
+      const steppedPercentageOfRange = roundToNearestStepValue(
+        percentageOfRange,
+        step,
+      );
 
-      if (steppedPercentage >= 100) {
-        this.setState({valueUpper: 100});
-      } else if (steppedPercentage <= this.state.valueLower) {
-        const {valueLower} = this.state;
-        const valuePlusStep = valueLower + this.props.step;
-        this.setState({valueUpper: valuePlusStep});
-      } else {
-        this.setState({valueUpper: steppedPercentage}, () => {
-          this.handleChange();
-        });
-      }
+      const valueWithinBoundsUpper = keepValueWithinBoundsUpper(
+        steppedPercentageOfRange,
+        this.state.valueLower,
+        max,
+        step,
+      );
+      this.setState({valueUpper: valueWithinBoundsUpper}, () => {
+        this.handleChange();
+      });
     }
   }
 
@@ -349,65 +439,142 @@ export default class DualThumb extends React.Component<Props, State> {
 
   @autobind
   private handleTextFieldChangeLower(value: string) {
-    this.setState({accessibilityPrefix: value});
+    this.accessibilityPrefix = `${value}`;
   }
 
   @autobind
   private handleTextFieldChangeUpper(value: string) {
-    this.setState({accessibilitySuffix: value});
+    this.accessibilitySuffix = `${value}`;
   }
 
-  @autobind
-  private handleTextFieldBlurLower() {
-    const steppedValue = roundToNearestStepValue(
-      Number(this.state.accessibilityPrefix),
-      this.props.step,
-    );
+  // @autobind
+  // private handleTextFieldBlurLower() {
+  //   const steppedValue = roundToNearestStepValue(
+  //     Number(this.state.accessibilityPrefix),
+  //     this.props.step,
+  //   );
 
-    if (steppedValue <= 0) {
-      this.setState({valueLower: 100, accessibilityPrefix: '100'});
-    } else if (steppedValue >= this.state.valueUpper) {
-      const {valueUpper} = this.state;
-      const valuePlusStep = valueUpper - this.props.step;
-      this.setState({
-        valueLower: valuePlusStep,
-        accessibilityPrefix: `${valuePlusStep}`,
-      });
-    } else {
-      this.setState({
-        valueLower: steppedValue,
-        accessibilityPrefix: `${steppedValue}`,
-      });
-    }
-  }
+  //   const valueWithinBoundsLower = keepValueWithinBoundsLower(
+  //     steppedValue,
+  //     this.state.valueUpper,
+  //     this.props.step,
+  //   );
+  //   // this.setState({valueLower: valueWithinBoundsLower});
+  // }
 
-  @autobind
-  private handleTextFieldBlurUpper() {
-    const steppedValue = roundToNearestStepValue(
-      Number(this.state.accessibilitySuffix),
-      this.props.step,
-    );
+  // @autobind
+  // private handleTextFieldBlurUpper() {
+  //   const steppedValue = roundToNearestStepValue(
+  //     Number(this.state.accessibilitySuffix),
+  //     this.props.step,
+  //   );
 
-    if (steppedValue >= 100) {
-      this.setState({valueUpper: 100, accessibilitySuffix: '100'});
-    } else if (steppedValue <= this.state.valueLower) {
-      const {valueLower} = this.state;
-      const valuePlusStep = valueLower + this.props.step;
-      this.setState({
-        valueUpper: valuePlusStep,
-        accessibilitySuffix: `${valuePlusStep}`,
-      });
-    } else {
-      this.setState({
-        valueUpper: steppedValue,
-        accessibilitySuffix: `${steppedValue}`,
-      });
-    }
-  }
+  //   const valueWithinBoundsUpper = keepValueWithinBoundsUpper(
+  //     steppedValue,
+  //     this.state.valueLower,
+  //     this.props.step,
+  //   );
+  //   // this.setState({valueUpper: valueWithinBoundsUpper});
+  // }
+
+  // @autobind
+  // private handleKeypressLower(event: KeyboardEvent) {
+  //   event.preventDefault();
+  //   event.stopPropagation();
+
+  //   if (event.keyCode === Key.DownArrow || event.keyCode === Key.LeftArrow) {
+  //     this.handleKeypressDecrementLower();
+  //   } else if (
+  //     event.keyCode === Key.UpArrow ||
+  //     event.keyCode === Key.RightArrow
+  //   ) {
+  //     this.handleKeypressIncrementLower();
+  //   }
+  // }
+
+  // @autobind
+  // private handleKeypressUpper(event: KeyboardEvent) {
+  //   event.preventDefault();
+  //   event.stopPropagation();
+
+  //   if (event.keyCode === Key.DownArrow || event.keyCode === Key.LeftArrow) {
+  //     this.handleKeypressDecrementUpper();
+  //   } else if (
+  //     event.keyCode === Key.UpArrow ||
+  //     event.keyCode === Key.RightArrow
+  //   ) {
+  //     this.handleKeypressIncrementUpper();
+  //   }
+  // }
+
+  // @autobind
+  // private handleKeypressDecrementLower() {
+  //   const newValue = this.state.valueLower - this.props.step;
+  //   const steppedValue = roundToNearestStepValue(newValue, this.props.step);
+
+  //   const valueWithinBoundsLower = keepValueWithinBoundsLower(
+  //     steppedValue,
+  //     this.state.valueUpper,
+  //     this.props.step,
+  //   );
+  //   // this.setState({valueLower: valueWithinBoundsLower});
+  // }
+
+  // @autobind
+  // private handleKeypressIncrementLower() {
+  //   const newValue = this.state.valueLower + this.props.step;
+  //   const steppedValue = roundToNearestStepValue(newValue, this.props.step);
+
+  //   // this.setState({valueLower: newValue});
+  // }
+
+  // @autobind
+  // private handleKeypressDecrementUpper() {
+  //   const newValue = this.state.valueUpper - this.props.step;
+
+  //   // this.setState({valueUpper: newValue});
+  // }
+
+  // @autobind
+  // private handleKeypressIncrementUpper() {
+  //   const newValue = this.state.valueUpper + this.props.step;
+
+  //   // this.setState({valueUpper: newValue});
+  // }
 }
 
 function roundToNearestStepValue(value: number, step: number) {
   const intermediateValue = value / step;
   const roundedValue = Math.round(intermediateValue);
   return roundedValue * step;
+}
+
+function keepValueWithinBoundsLower(
+  steppedValue: number,
+  valueUpper: number,
+  min: number,
+  step: number,
+) {
+  if (steppedValue <= min) {
+    return min;
+  } else if (steppedValue >= valueUpper) {
+    return valueUpper - step;
+  } else {
+    return steppedValue;
+  }
+}
+
+function keepValueWithinBoundsUpper(
+  steppedValue: number,
+  valueLower: number,
+  max: number,
+  step: number,
+) {
+  if (steppedValue >= max) {
+    return max;
+  } else if (steppedValue <= valueLower) {
+    return valueLower + step;
+  } else {
+    return steppedValue;
+  }
 }

@@ -33,19 +33,13 @@ $range-accessibility-input-margin: rem(8px);
 .AccessibilityInputsWrapper {
   width: 100%;
   display: flex;
+  flex-wrap: nowrap;
   justify-content: space-between;
   margin-top: $range-accessibility-input-margin;
 }
 
 .AccessibilityInputLower {
   min-width: rem(80px);
-  max-width: rem(200px);
-  margin-right: $range-accessibility-input-margin;
-}
-
-.AccessibilityInputUpper {
-  min-width: rem(80px);
-  margin-left: $range-accessibility-input-margin;
 }
 
 .Track {
@@ -105,12 +99,6 @@ $range-accessibility-input-margin: rem(8px);
 
 $range-output-size: rem(32px);
 $range-output-tip-size: rem(8px);
-$range-output-translate-x-lower: calc(
-  -10% + var(--Polaris-RangeSlider-output-factor-lower, 0) * #{$range-thumb-size}
-);
-$range-output-translate-x-upper: calc(
-  -10% + var(--Polaris-RangeSlider-output-factor-upper, 0) * #{$range-thumb-size}
-);
 
 .Output {
   position: absolute;
@@ -182,12 +170,4 @@ $range-output-translate-x-upper: calc(
   margin: auto;
   text-align: center;
   color: color('white');
-}
-
-.OutputLower {
-  transform: translateX($range-output-translate-x-lower);
-}
-
-.OutputUpper {
-  transform: translateX($range-output-translate-x-upper);
 }
