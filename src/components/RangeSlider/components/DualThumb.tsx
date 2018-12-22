@@ -15,6 +15,8 @@ export interface State {
   valueLower: number;
   valueUpper: number;
   trackWidth: number;
+  accessibilityPrefix: string;
+  accessibilitySuffix: string;
 }
 
 interface Props {
@@ -40,10 +42,9 @@ export default class DualThumb extends React.Component<Props, State> {
     valueLower: this.props.value[0],
     valueUpper: this.props.value[1],
     trackWidth: 0,
+    accessibilityPrefix: `${this.props.value[0]}`,
+    accessibilitySuffix: `${this.props.value[1]}`,
   };
-
-  accessibilityPrefix = `${this.state.valueLower}`;
-  accessibilitySuffix = `${this.state.valueUpper}`;
 
   THUMB_SIZE = 24;
   OUTPUT_TIP_SIZE = 8;
@@ -53,22 +54,24 @@ export default class DualThumb extends React.Component<Props, State> {
   private thumbUpper = React.createRef<HTMLDivElement>();
 
   componentDidMount() {
-    this.setState({
-      valueLower: keepValueWithinBoundsLower(
-        this.state.valueLower,
-        this.state.valueUpper,
-        this.props.min,
-        this.props.step,
-      ),
-    });
+    const valueWithinBoundsLower = keepValueWithinBoundsLower(
+      this.state.valueLower,
+      this.state.valueUpper,
+      this.props.min,
+      this.props.step,
+    );
 
+    const valueWithinBoundsUpper = keepValueWithinBoundsUpper(
+      this.state.valueUpper,
+      this.state.valueLower,
+      this.props.max,
+      this.props.step,
+    );
     this.setState({
-      valueUpper: keepValueWithinBoundsUpper(
-        this.state.valueUpper,
-        this.state.valueLower,
-        this.props.max,
-        this.props.step,
-      ),
+      valueLower: valueWithinBoundsLower,
+      valueUpper: valueWithinBoundsUpper,
+      accessibilityPrefix: `${valueWithinBoundsLower}`,
+      accessibilitySuffix: `${valueWithinBoundsUpper}`,
     });
 
     if (this.track.current) {
@@ -78,17 +81,16 @@ export default class DualThumb extends React.Component<Props, State> {
     }
 
     if (this.thumbLower.current && !this.props.disabled) {
-      console.log('thumb did mount');
       addEventListener(
         this.thumbLower.current,
         'mousedown',
         this.handleMouseDownThumbLower,
       );
-      // addEventListener(
-      //   this.thumbLower.current,
-      //   'keyup',
-      //   this.handleKeypressLower,
-      // );
+      addEventListener(
+        this.thumbLower.current,
+        'keyup',
+        this.handleKeypressLower,
+      );
     }
 
     if (this.thumbUpper.current && !this.props.disabled) {
@@ -97,11 +99,11 @@ export default class DualThumb extends React.Component<Props, State> {
         'mousedown',
         this.handleMouseDownThumbUpper,
       );
-      // addEventListener(
-      //   this.thumbUpper.current,
-      //   'keyup',
-      //   this.handleKeypressUpper,
-      // );
+      addEventListener(
+        this.thumbUpper.current,
+        'keyup',
+        this.handleKeypressUpper,
+      );
     }
   }
 
@@ -168,10 +170,9 @@ export default class DualThumb extends React.Component<Props, State> {
           prefix={prefix}
           suffix={suffix}
           disabled={disabled}
-          value={this.accessibilityPrefix}
-          // value={`${this.state.valueLower}`}
+          value={this.state.accessibilityPrefix}
           onChange={this.handleTextFieldChangeLower}
-          // onBlur={this.handleTextFieldBlurLower}
+          onBlur={this.handleTextFieldBlurLower}
         />
       </div>
     ) : null;
@@ -186,10 +187,9 @@ export default class DualThumb extends React.Component<Props, State> {
           prefix={prefix}
           suffix={suffix}
           disabled={disabled}
-          value={this.accessibilitySuffix}
-          // value={`${this.state.valueUpper}`}
+          value={this.state.accessibilitySuffix}
           onChange={this.handleTextFieldChangeUpper}
-          // onBlur={this.handleTextFieldBlurUpper}
+          onBlur={this.handleTextFieldBlurUpper}
         />
       </div>
     ) : null;
@@ -373,9 +373,15 @@ export default class DualThumb extends React.Component<Props, State> {
         min,
         step,
       );
-      this.setState({valueLower: valueWithinBoundsLower}, () => {
-        this.handleChange();
-      });
+      this.setState(
+        {
+          valueLower: valueWithinBoundsLower,
+          accessibilityPrefix: `${valueWithinBoundsLower}`,
+        },
+        () => {
+          this.handleChange();
+        },
+      );
     }
   }
 
@@ -421,9 +427,15 @@ export default class DualThumb extends React.Component<Props, State> {
         max,
         step,
       );
-      this.setState({valueUpper: valueWithinBoundsUpper}, () => {
-        this.handleChange();
-      });
+      this.setState(
+        {
+          valueUpper: valueWithinBoundsUpper,
+          accessibilitySuffix: `${valueWithinBoundsUpper}`,
+        },
+        () => {
+          this.handleChange();
+        },
+      );
     }
   }
 
@@ -439,108 +451,112 @@ export default class DualThumb extends React.Component<Props, State> {
 
   @autobind
   private handleTextFieldChangeLower(value: string) {
-    this.accessibilityPrefix = `${value}`;
+    this.setState({accessibilityPrefix: `${value}`});
   }
 
   @autobind
   private handleTextFieldChangeUpper(value: string) {
-    this.accessibilitySuffix = `${value}`;
+    this.setState({accessibilitySuffix: `${value}`});
   }
 
-  // @autobind
-  // private handleTextFieldBlurLower() {
-  //   const steppedValue = roundToNearestStepValue(
-  //     Number(this.state.accessibilityPrefix),
-  //     this.props.step,
-  //   );
+  @autobind
+  private handleTextFieldBlurLower() {
+    const steppedValue = roundToNearestStepValue(
+      Number(this.state.accessibilityPrefix),
+      this.props.step,
+    );
 
-  //   const valueWithinBoundsLower = keepValueWithinBoundsLower(
-  //     steppedValue,
-  //     this.state.valueUpper,
-  //     this.props.step,
-  //   );
-  //   // this.setState({valueLower: valueWithinBoundsLower});
-  // }
+    const valueWithinBoundsLower = keepValueWithinBoundsLower(
+      steppedValue,
+      this.state.valueUpper,
+      this.props.min,
+      this.props.step,
+    );
+    this.setState({
+      valueLower: valueWithinBoundsLower,
+      accessibilityPrefix: `${valueWithinBoundsLower}`,
+    });
+  }
 
-  // @autobind
-  // private handleTextFieldBlurUpper() {
-  //   const steppedValue = roundToNearestStepValue(
-  //     Number(this.state.accessibilitySuffix),
-  //     this.props.step,
-  //   );
+  @autobind
+  private handleTextFieldBlurUpper() {
+    const steppedValue = roundToNearestStepValue(
+      Number(this.state.accessibilitySuffix),
+      this.props.step,
+    );
 
-  //   const valueWithinBoundsUpper = keepValueWithinBoundsUpper(
-  //     steppedValue,
-  //     this.state.valueLower,
-  //     this.props.step,
-  //   );
-  //   // this.setState({valueUpper: valueWithinBoundsUpper});
-  // }
+    const valueWithinBoundsUpper = keepValueWithinBoundsUpper(
+      steppedValue,
+      this.state.valueLower,
+      this.props.max,
+      this.props.step,
+    );
+    this.setState({
+      valueUpper: valueWithinBoundsUpper,
+      accessibilitySuffix: `${valueWithinBoundsUpper}`,
+    });
+  }
 
-  // @autobind
-  // private handleKeypressLower(event: KeyboardEvent) {
-  //   event.preventDefault();
-  //   event.stopPropagation();
+  @autobind
+  private handleKeypressLower(event: KeyboardEvent) {
+    event.preventDefault();
+    event.stopPropagation();
 
-  //   if (event.keyCode === Key.DownArrow || event.keyCode === Key.LeftArrow) {
-  //     this.handleKeypressDecrementLower();
-  //   } else if (
-  //     event.keyCode === Key.UpArrow ||
-  //     event.keyCode === Key.RightArrow
-  //   ) {
-  //     this.handleKeypressIncrementLower();
-  //   }
-  // }
+    let newValue = this.state.valueLower;
 
-  // @autobind
-  // private handleKeypressUpper(event: KeyboardEvent) {
-  //   event.preventDefault();
-  //   event.stopPropagation();
+    if (event.keyCode === Key.DownArrow || event.keyCode === Key.LeftArrow) {
+      newValue = this.state.valueLower - this.props.step;
+    } else if (
+      event.keyCode === Key.UpArrow ||
+      event.keyCode === Key.RightArrow
+    ) {
+      newValue = this.state.valueUpper + this.props.step;
+    }
 
-  //   if (event.keyCode === Key.DownArrow || event.keyCode === Key.LeftArrow) {
-  //     this.handleKeypressDecrementUpper();
-  //   } else if (
-  //     event.keyCode === Key.UpArrow ||
-  //     event.keyCode === Key.RightArrow
-  //   ) {
-  //     this.handleKeypressIncrementUpper();
-  //   }
-  // }
+    const valueWithinBoundsLower = keepValueWithinBoundsLower(
+      newValue,
+      this.state.valueUpper,
+      this.props.min,
+      this.props.step,
+    );
 
-  // @autobind
-  // private handleKeypressDecrementLower() {
-  //   const newValue = this.state.valueLower - this.props.step;
-  //   const steppedValue = roundToNearestStepValue(newValue, this.props.step);
+    this.setState({
+      valueLower: valueWithinBoundsLower,
+      accessibilityPrefix: `${valueWithinBoundsLower}`,
+    });
+  }
 
-  //   const valueWithinBoundsLower = keepValueWithinBoundsLower(
-  //     steppedValue,
-  //     this.state.valueUpper,
-  //     this.props.step,
-  //   );
-  //   // this.setState({valueLower: valueWithinBoundsLower});
-  // }
+  @autobind
+  private handleKeypressUpper(event: KeyboardEvent) {
+    event.preventDefault();
+    event.stopPropagation();
 
-  // @autobind
-  // private handleKeypressIncrementLower() {
-  //   const newValue = this.state.valueLower + this.props.step;
-  //   const steppedValue = roundToNearestStepValue(newValue, this.props.step);
+    let newValue = this.state.valueUpper;
 
-  //   // this.setState({valueLower: newValue});
-  // }
+    if (event.keyCode === Key.DownArrow || event.keyCode === Key.LeftArrow) {
+      newValue = this.state.valueUpper - this.props.step;
+    } else if (
+      event.keyCode === Key.UpArrow ||
+      event.keyCode === Key.RightArrow
+    ) {
+      newValue = this.state.valueUpper + this.props.step;
+    }
 
-  // @autobind
-  // private handleKeypressDecrementUpper() {
-  //   const newValue = this.state.valueUpper - this.props.step;
+    const valueWithinBoundsUpper = keepValueWithinBoundsUpper(
+      newValue,
+      this.state.valueLower,
+      this.props.max,
+      this.props.step,
+    );
 
-  //   // this.setState({valueUpper: newValue});
-  // }
+    this.setState({
+      valueUpper: valueWithinBoundsUpper,
+      accessibilitySuffix: `${valueWithinBoundsUpper}`,
+    });
 
-  // @autobind
-  // private handleKeypressIncrementUpper() {
-  //   const newValue = this.state.valueUpper + this.props.step;
-
-  //   // this.setState({valueUpper: newValue});
-  // }
+    event.preventDefault();
+    event.stopPropagation();
+  }
 }
 
 function roundToNearestStepValue(value: number, step: number) {
