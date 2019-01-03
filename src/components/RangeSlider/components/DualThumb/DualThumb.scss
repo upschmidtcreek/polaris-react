@@ -28,6 +28,31 @@ $range-accessibility-input-margin: rem(8px);
     opacity: 0.8;
     cursor: not-allowed;
   }
+
+  &.error {
+    &:active,
+    &:focus {
+      .Track {
+        --unselected-range: #{color('sky', 'dark')};
+        --selected-range: #{color('indigo')};
+        --gradient-colors: var(--unselected-range, transparent) 0%,
+          var(--unselected-range, transparent)
+            var(--Polaris-RangeSlider-progress-lower),
+          var(--selected-range, transparent)
+            var(--Polaris-RangeSlider-progress-lower),
+          var(--selected-range, transparent)
+            var(--Polaris-RangeSlider-progress-upper),
+          var(--unselected-range, transparent)
+            var(--Polaris-RangeSlider-progress-upper),
+          var(--unselected-range, transparent) 100%;
+        background-image: linear-gradient(to right, var(--gradient-colors));
+      }
+
+      .Thumbs {
+        border: $range-thumbs-border-active;
+      }
+    }
+  }
 }
 
 .AccessibilityInputsWrapper {
@@ -108,6 +133,30 @@ $range-accessibility-input-margin: rem(8px);
   .error & {
     border: $range-thumbs-border-error;
   }
+
+  &:hover + .Output &,
+  &:active + .Output &,
+  &:focus + .Output & {
+    transform: translateY(-$range-thumb-size);
+
+    @include page-content-when-not-partially-condensed {
+      transform: translateY(-($range-thumb-size / 2));
+    }
+  }
+}
+
+.ThumbLower:hover + &,
+.ThumbLower:active + &,
+.ThumbLower:focus + & {
+  opacity: 1;
+  visibility: visible;
+}
+
+.ThumbUpper:hover + &,
+.ThumbUpper:active + &,
+.ThumbUpper:focus + & {
+  opacity: 1;
+  visibility: visible;
 }
 
 $range-output-size: rem(32px);
