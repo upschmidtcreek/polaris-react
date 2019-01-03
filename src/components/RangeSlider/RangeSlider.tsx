@@ -7,7 +7,6 @@ import {Error} from '../../types';
 import {withAppProvider, WithAppProviderProps} from '../AppProvider';
 import Labelled, {Action, helpTextID} from '../Labelled';
 import {DualThumb} from './components/DualThumb';
-import {invertNumber} from './utilities';
 
 import * as styles from './RangeSlider.scss';
 
@@ -226,6 +225,16 @@ export class RangeSlider extends React.PureComponent<CombinedProps, State> {
     }
 
     onChange(parseFloat(event.currentTarget.value) as number, this.state.id);
+  }
+}
+
+export function invertNumber(number: number) {
+  if (Math.sign(number) === 1) {
+    return -Math.abs(number);
+  } else if (Math.sign(number) === -1) {
+    return Math.abs(number);
+  } else {
+    return 0;
   }
 }
 

@@ -6,6 +6,7 @@ import {
 } from '@shopify/javascript-utilities/events';
 import {classNames} from '@shopify/react-utilities/styles';
 import TextField from '../../../TextField';
+import {roundToNearestStepValue} from '../../utilities';
 
 import {Error, Key} from '../../../../types';
 import * as styles from './DualThumb.scss';
@@ -560,12 +561,6 @@ export default class DualThumb extends React.Component<Props, State> {
     event.preventDefault();
     event.stopPropagation();
   }
-}
-
-function roundToNearestStepValue(value: number, step: number) {
-  const intermediateValue = value / step;
-  const roundedValue = Math.round(intermediateValue);
-  return roundedValue * step;
 }
 
 function keepValueWithinBoundsLower(
