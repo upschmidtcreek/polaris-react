@@ -138,6 +138,7 @@ $range-accessibility-input-margin: rem(8px);
     border: $range-thumbs-border-error;
   }
 
+  // stylelint-disable selector-max-specificity
   &:hover + .Output &,
   &:active + .Output &,
   &:focus + .Output & {
@@ -147,6 +148,7 @@ $range-accessibility-input-margin: rem(8px);
       transform: translateY(-($range-thumb-size / 2));
     }
   }
+  // stylelint-enable selector-max-specificity
 }
 
 .ThumbLower:hover + &,
