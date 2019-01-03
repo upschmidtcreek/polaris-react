@@ -32,6 +32,8 @@ $range-accessibility-input-margin: rem(8px);
   &.error {
     &:active,
     &:focus {
+      // stylelint-disable selector-max-specificity
+      // stylelint-disable selector-max-class
       .Track {
         --unselected-range: #{color('sky', 'dark')};
         --selected-range: #{color('indigo')};
@@ -51,6 +53,8 @@ $range-accessibility-input-margin: rem(8px);
       .Thumbs {
         border: $range-thumbs-border-active;
       }
+      // stylelint-enable selector-max-specificity
+      // stylelint-enable selector-max-class
     }
   }
 }
