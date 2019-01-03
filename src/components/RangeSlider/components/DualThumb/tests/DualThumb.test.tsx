@@ -81,17 +81,6 @@ describe('<DualThumb />', () => {
       const thumbLower = findByTestID(dualThumb, 'thumbLower');
       expect(thumbLower.prop('aria-valuenow')).toBe(min);
     });
-
-    it.skip('sets a lower boundary for aria-valuenow on the upper thumb', () => {
-      const min = 5;
-      const value = [6, 4] as [number, number];
-      const dualThumb = mountWithAppProvider(
-        <DualThumb {...mockProps} min={min} value={value} />,
-      );
-
-      const thumbUpper = findByTestID(dualThumb, 'thumbUpper');
-      expect(thumbUpper.prop('aria-valuenow')).toBe(min);
-    });
   });
 
   describe('max', () => {
@@ -113,17 +102,6 @@ describe('<DualThumb />', () => {
 
       const thumbUpper = findByTestID(dualThumb, 'thumbUpper');
       expect(thumbUpper.prop('aria-valuemax')).toBe(max);
-    });
-
-    it.skip('sets an upper boundary for aria-valuenow on the lower thumb', () => {
-      const max = 5;
-      const value = [9, 10] as [number, number];
-      const dualThumb = mountWithAppProvider(
-        <DualThumb {...mockProps} max={max} value={value} />,
-      );
-
-      const thumbLower = findByTestID(dualThumb, 'thumbLower');
-      expect(thumbLower.prop('aria-valuenow')).toBe(max);
     });
 
     it('sets an upper boundary for aria-valuenow on the upper thumb', () => {
@@ -152,8 +130,8 @@ describe('<DualThumb />', () => {
         <DualThumb {...mockProps} accessibilityInputs />,
       );
 
-      const lowerTextField = dualThumb.find(TextField).first();
-      expect(lowerTextField.prop('type')).toBe('number');
+      const textFieldLower = dualThumb.find(TextField).first();
+      expect(textFieldLower.prop('type')).toBe('number');
     });
 
     it('renders the upper TextField as a number', () => {
@@ -161,8 +139,8 @@ describe('<DualThumb />', () => {
         <DualThumb {...mockProps} accessibilityInputs />,
       );
 
-      const upperTextField = dualThumb.find(TextField).last();
-      expect(upperTextField.prop('type')).toBe('number');
+      const textFieldUpper = dualThumb.find(TextField).last();
+      expect(textFieldUpper.prop('type')).toBe('number');
     });
 
     it('renders the lower TextField with a visually hidden label', () => {
@@ -170,9 +148,9 @@ describe('<DualThumb />', () => {
         <DualThumb {...mockProps} accessibilityInputs />,
       );
 
-      const lowerTextField = dualThumb.find(TextField).first();
-      expect(lowerTextField.prop('label')).toBe('Lower value');
-      expect(lowerTextField.prop('labelHidden')).toBe(true);
+      const textFieldLower = dualThumb.find(TextField).first();
+      expect(textFieldLower.prop('label')).toBe('Lower value');
+      expect(textFieldLower.prop('labelHidden')).toBe(true);
     });
 
     it('renders the upper TextField with a visually hidden label', () => {
@@ -180,9 +158,9 @@ describe('<DualThumb />', () => {
         <DualThumb {...mockProps} accessibilityInputs />,
       );
 
-      const upperTextField = dualThumb.find(TextField).last();
-      expect(upperTextField.prop('label')).toBe('Upper value');
-      expect(upperTextField.prop('labelHidden')).toBe(true);
+      const textFieldUpper = dualThumb.find(TextField).last();
+      expect(textFieldUpper.prop('label')).toBe('Upper value');
+      expect(textFieldUpper.prop('labelHidden')).toBe(true);
     });
 
     it('renders the lower TextField with the lower value as a string', () => {
@@ -191,8 +169,8 @@ describe('<DualThumb />', () => {
         <DualThumb {...mockProps} accessibilityInputs value={value} />,
       );
 
-      const lowerTextField = dualThumb.find(TextField).first();
-      expect(lowerTextField.prop('value')).toBe('5');
+      const textFieldLower = dualThumb.find(TextField).first();
+      expect(textFieldLower.prop('value')).toBe('5');
     });
 
     it('renders the upper TextField with the upper value as a string', () => {
@@ -201,8 +179,8 @@ describe('<DualThumb />', () => {
         <DualThumb {...mockProps} accessibilityInputs value={value} />,
       );
 
-      const upperTextField = dualThumb.find(TextField).last();
-      expect(upperTextField.prop('value')).toBe('10');
+      const textFieldUpper = dualThumb.find(TextField).last();
+      expect(textFieldUpper.prop('value')).toBe('10');
     });
 
     describe('prefix', () => {
@@ -212,8 +190,8 @@ describe('<DualThumb />', () => {
           <DualThumb {...mockProps} accessibilityInputs prefix={prefix} />,
         );
 
-        const lowerTextField = dualThumb.find(TextField).first();
-        expect(lowerTextField.prop('prefix')).toBe(prefix);
+        const textFieldLower = dualThumb.find(TextField).first();
+        expect(textFieldLower.prop('prefix')).toBe(prefix);
       });
 
       it('passes the prefix to the upper TextField', () => {
@@ -222,8 +200,8 @@ describe('<DualThumb />', () => {
           <DualThumb {...mockProps} accessibilityInputs prefix={prefix} />,
         );
 
-        const upperTextField = dualThumb.find(TextField).last();
-        expect(upperTextField.prop('prefix')).toBe(prefix);
+        const textFieldUpper = dualThumb.find(TextField).last();
+        expect(textFieldUpper.prop('prefix')).toBe(prefix);
       });
     });
 
@@ -234,8 +212,8 @@ describe('<DualThumb />', () => {
           <DualThumb {...mockProps} accessibilityInputs suffix={suffix} />,
         );
 
-        const lowerTextField = dualThumb.find(TextField).first();
-        expect(lowerTextField.prop('suffix')).toBe(suffix);
+        const textFieldLower = dualThumb.find(TextField).first();
+        expect(textFieldLower.prop('suffix')).toBe(suffix);
       });
 
       it('passes the suffix to the upper TextField', () => {
@@ -244,8 +222,8 @@ describe('<DualThumb />', () => {
           <DualThumb {...mockProps} accessibilityInputs suffix={suffix} />,
         );
 
-        const upperTextField = dualThumb.find(TextField).last();
-        expect(upperTextField.prop('suffix')).toBe(suffix);
+        const textFieldUpper = dualThumb.find(TextField).last();
+        expect(textFieldUpper.prop('suffix')).toBe(suffix);
       });
     });
 
@@ -253,29 +231,29 @@ describe('<DualThumb />', () => {
       it('returns value and id when called by the lower TextField', () => {
         const onChangeSpy = jest.fn();
         const value = [10, 20] as [number, number];
-        
+
         const dualThumb = mountWithAppProvider(
           <DualThumb {...mockProps} accessibilityInputs onChange={onChangeSpy} value={value} />,
         );
-  
+
         const id = 'RangeSlider';
-        const lowerTextField = dualThumb.find(TextField).first();
-        trigger(lowerTextField, 'onChange', {value: value, id: id}, () => {
+        const textFieldLower = dualThumb.find(TextField).first();
+        trigger(textFieldLower, 'onChange', {value: value, id: id}, () => {
           expect(onChangeSpy).toHaveBeenCalledWith({value, id});
         });
       });
-  
+
       it('returns value and id when called by the upper TextField', () => {
         const onChangeSpy = jest.fn();
         const value = [10, 20] as [number, number];
-        
+
         const dualThumb = mountWithAppProvider(
           <DualThumb {...mockProps} accessibilityInputs onChange={onChangeSpy} value={value} />,
         );
-  
+
         const id = 'RangeSlider';
-        const upperTextField = dualThumb.find(TextField).last();
-        trigger(upperTextField, 'onChange', {value: value, id: id}, () => {
+        const textFieldUpper = dualThumb.find(TextField).last();
+        trigger(textFieldUpper, 'onChange', {value: value, id: id}, () => {
           expect(onChangeSpy).toHaveBeenCalledWith({value, id});
         });
       });
@@ -311,8 +289,8 @@ describe('<DualThumb />', () => {
         <DualThumb {...mockProps} accessibilityInputs step={step} />,
       );
 
-      const lowerTextField = dualThumb.find(TextField).first();
-      expect(lowerTextField.prop('step')).toBe(step);
+      const textFieldLower = dualThumb.find(TextField).first();
+      expect(textFieldLower.prop('step')).toBe(step);
     });
 
     it('passes step to the upper TextField', () => {
@@ -321,8 +299,8 @@ describe('<DualThumb />', () => {
         <DualThumb {...mockProps} accessibilityInputs step={step} />,
       );
 
-      const upperTextField = dualThumb.find(TextField).last();
-      expect(upperTextField.prop('step')).toBe(step);
+      const textFieldUpper = dualThumb.find(TextField).last();
+      expect(textFieldUpper.prop('step')).toBe(step);
     });
   });
 
@@ -368,8 +346,8 @@ describe('<DualThumb />', () => {
         <DualThumb {...mockProps} accessibilityInputs disabled />,
       );
 
-      const lowerTextField = dualThumb.find(TextField).first();
-      expect(lowerTextField.prop('disabled')).toBe(true);
+      const textFieldLower = dualThumb.find(TextField).first();
+      expect(textFieldLower.prop('disabled')).toBe(true);
     });
 
     it('gets passed to the upper TextField', () => {
@@ -377,13 +355,13 @@ describe('<DualThumb />', () => {
         <DualThumb {...mockProps} accessibilityInputs disabled />,
       );
 
-      const upperTextField = dualThumb.find(TextField).last();
-      expect(upperTextField.prop('disabled')).toBe(true);
+      const textFieldUpper = dualThumb.find(TextField).last();
+      expect(textFieldUpper.prop('disabled')).toBe(true);
     });
   });
 
   describe('error', () => {
-    it('is sets aria-invalid to true on the lower thumb', () => {
+    it('sets aria-invalid to true on the lower thumb', () => {
       const dualThumb = mountWithAppProvider(
         <DualThumb {...mockProps} error="Error" />,
       );
@@ -392,7 +370,7 @@ describe('<DualThumb />', () => {
       expect(thumbLower.prop('aria-invalid')).toBe(true);
     });
 
-    it('is sets aria-invalid to true on the upper thumb', () => {
+    it('sets aria-invalid to true on the upper thumb', () => {
       const dualThumb = mountWithAppProvider(
         <DualThumb {...mockProps} error="Error" />,
       );
@@ -406,7 +384,7 @@ describe('<DualThumb />', () => {
         const dualThumb = mountWithAppProvider(
           <DualThumb {...mockProps} error="Error" />,
         );
-  
+
         const thumbLower = findByTestID(dualThumb, 'thumbLower');
         expect(thumbLower.prop('aria-describedby')).toBe('RangeSliderError');
       });
@@ -415,7 +393,7 @@ describe('<DualThumb />', () => {
         const dualThumb = mountWithAppProvider(
           <DualThumb {...mockProps} error="Error" />,
         );
-  
+
         const thumbUpper = findByTestID(dualThumb, 'thumbUpper');
         expect(thumbUpper.prop('aria-describedby')).toBe('RangeSliderError');
       });
