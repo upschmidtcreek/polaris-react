@@ -1,5 +1,9 @@
-export function roundToNearestStepValue(value: number, step: number) {
-  const intermediateValue = value / step;
-  const roundedValue = Math.round(intermediateValue);
-  return roundedValue * step;
+export function invertNumber(number: number) {
+  if (Math.sign(number) === 1) {
+    return -Math.abs(number);
+  } else if (Math.sign(number) === -1) {
+    return Math.abs(number);
+  } else {
+    return 0;
+  }
 }

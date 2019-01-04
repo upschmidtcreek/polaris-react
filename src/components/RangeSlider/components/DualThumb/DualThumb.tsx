@@ -6,9 +6,10 @@ import {
 } from '@shopify/javascript-utilities/events';
 import {classNames} from '@shopify/react-utilities/styles';
 import TextField from '../../../TextField';
-import {roundToNearestStepValue} from '../../utilities';
+import {Props as RangeSliderProps} from '../../types';
+import Labelled from '../../../Labelled';
 
-import {Error, Key} from '../../../../types';
+import {Key} from '../../../../types';
 import * as styles from './DualThumb.scss';
 
 export interface State {
@@ -17,22 +18,14 @@ export interface State {
   trackWidth: number;
 }
 
-export interface Props {
-  id: string;
+export interface Props extends RangeSliderProps {
   cssVarPrefix: string;
   value: [number, number];
+  accessibilityInputs?: boolean;
+  id: string;
   min: number;
   max: number;
   step: number;
-  output: boolean;
-  error?: Error;
-  disabled: boolean;
-  prefix?: React.ReactNode;
-  suffix?: React.ReactNode;
-  accessibilityInputs?: boolean;
-  onChange(value: [number, number], id: string): void;
-  onFocus?(): void;
-  onBlur?(): void;
 }
 
 const THUMB_SIZE = 24;
@@ -46,8 +39,8 @@ export default class DualThumb extends React.Component<Props, State> {
   };
 
   private track = React.createRef<HTMLDivElement>();
-  private thumbLower = React.createRef<HTMLDivElement>();
-  private thumbUpper = React.createRef<HTMLDivElement>();
+  private thumbLower = React.createRef<HTMLButtonElement>();
+  private thumbUpper = React.createRef<HTMLButtonElement>();
 
   componentDidMount() {
     const {valueLower, valueUpper} = this.state;
@@ -119,6 +112,10 @@ export default class DualThumb extends React.Component<Props, State> {
       accessibilityInputs,
       onFocus,
       onBlur,
+      label,
+      labelAction,
+      labelHidden,
+      helpText,
     } = this.props;
     const {valueLower, valueUpper} = this.state;
 
@@ -254,60 +251,67 @@ export default class DualThumb extends React.Component<Props, State> {
     };
 
     return (
-      <div className={styles.Wrapper} id={id}>
-        <div className={classNameTrackWrapper}>
-          <div
-            className={styles.Track}
-            style={cssVars}
-            ref={this.track}
-            testID="track"
-          />
-          <div
-            id={idLower}
-            testID="thumbLower"
-            className={classNameThumbLower}
-            ref={this.thumbLower}
-            style={{
-              left: `${leftPositionThumbLower}px`,
-            }}
-            role="slider"
-            aria-disabled={disabled}
-            aria-valuemin={min}
-            aria-valuemax={max}
-            aria-valuenow={valueLower}
-            aria-invalid={Boolean(error)}
-            aria-describedby={ariaDescribedBy}
-            tabIndex={1}
-            onFocus={onFocus}
-            onBlur={onBlur}
-          />
-          {outputMarkupLower}
-          <div
-            id={idUpper}
-            testID="thumbUpper"
-            className={classNameThumbUpper}
-            ref={this.thumbUpper}
-            style={{
-              left: `${leftPositionThumbUpper}px`,
-            }}
-            role="slider"
-            aria-disabled={disabled}
-            aria-valuemin={min}
-            aria-valuemax={max}
-            aria-valuenow={valueUpper}
-            aria-invalid={Boolean(error)}
-            aria-describedby={ariaDescribedBy}
-            tabIndex={1}
-            onFocus={onFocus}
-            onBlur={onBlur}
-          />
-          {outputMarkupUpper}
+      <Labelled
+        id={id}
+        label={label}
+        error={error}
+        action={labelAction}
+        labelHidden={labelHidden}
+        helpText={helpText}
+      >
+        <div className={styles.Wrapper} id={id}>
+          <div className={classNameTrackWrapper}>
+            <div
+              className={styles.Track}
+              style={cssVars}
+              ref={this.track}
+              testID="track"
+            />
+            <button
+              id={idLower}
+              testID="thumbLower"
+              className={classNameThumbLower}
+              ref={this.thumbLower}
+              style={{
+                left: `${leftPositionThumbLower}px`,
+              }}
+              role="slider"
+              aria-disabled={disabled}
+              aria-valuemin={min}
+              aria-valuemax={max}
+              aria-valuenow={valueLower}
+              aria-invalid={Boolean(error)}
+              aria-describedby={ariaDescribedBy}
+              onFocus={onFocus}
+              onBlur={onBlur}
+            />
+            {outputMarkupLower}
+            <button
+              id={idUpper}
+              testID="thumbUpper"
+              className={classNameThumbUpper}
+              ref={this.thumbUpper}
+              style={{
+                left: `${leftPositionThumbUpper}px`,
+              }}
+              role="slider"
+              aria-disabled={disabled}
+              aria-valuemin={min}
+              aria-valuemax={max}
+              aria-valuenow={valueUpper}
+              aria-invalid={Boolean(error)}
+              aria-describedby={ariaDescribedBy}
+              onFocus={onFocus}
+              onBlur={onBlur}
+            />
+            {outputMarkupUpper}
+          </div>
+          <div className={styles.AccessibilityInputsWrapper}>
+            {accessibilityPrefixMarkup}
+            {accessibilitySuffixMarkup}
+          </div>
         </div>
-        <div className={styles.AccessibilityInputsWrapper}>
-          {accessibilityPrefixMarkup}
-          {accessibilitySuffixMarkup}
-        </div>
-      </div>
+      </Labelled>
     );
   }
 
@@ -581,4 +585,10 @@ function keepValueWithinBoundsUpper(
   } else {
     return steppedValue;
   }
+}
+
+function roundToNearestStepValue(value: number, step: number) {
+  const intermediateValue = value / step;
+  const roundedValue = Math.round(intermediateValue);
+  return roundedValue * step;
 }

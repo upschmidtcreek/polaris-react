@@ -1,1 +1,2 @@
-export {default as DualThumb, Props as DualThumbProps} from './DualThumb';
+export {default as DualThumb} from './DualThumb';
+export {default as SingleThumb} from './SingleThumb';

@@ -15,6 +15,7 @@ describe('<DualThumb />', () => {
     output: false,
     disabled: false,
     onChange: noop,
+    label: 'Dual thumb range slider',
   };
 
   describe('id', () => {

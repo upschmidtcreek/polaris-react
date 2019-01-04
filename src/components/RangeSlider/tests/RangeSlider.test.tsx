@@ -1,8 +1,9 @@
 import * as React from 'react';
 import {noop} from '@shopify/javascript-utilities/other';
 import {shallowWithAppProvider, mountWithAppProvider} from 'test-utilities';
-import RangeSlider, {invertNumber} from '../RangeSlider';
+import RangeSlider from '../RangeSlider';
 import {DualThumb} from '../components';
+import {invertNumber} from '../utilities';
 
 describe('<RangeSlider />', () => {
   it('allows specific props to pass through properties on the input', () => {
