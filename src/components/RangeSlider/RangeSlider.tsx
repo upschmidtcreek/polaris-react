@@ -97,8 +97,6 @@ export class RangeSlider extends React.PureComponent<CombinedProps, State> {
       onBlur,
     } = this.props;
 
-    const dualThumb = typeof value === 'object';
-
     const describedBy: string[] = [];
 
     if (error) {
@@ -113,7 +111,7 @@ export class RangeSlider extends React.PureComponent<CombinedProps, State> {
       ? describedBy.join(' ')
       : undefined;
 
-    const sliderProgress = ((value as number - min) * 100) / (max - min);
+    const sliderProgress = (((value as number) - min) * 100) / (max - min);
 
     const cssVars = {
       [`${cssVarPrefix}min`]: min,
@@ -125,10 +123,7 @@ export class RangeSlider extends React.PureComponent<CombinedProps, State> {
       ),
     };
 
-    const classNameOutput = classNames(
-      styles.Output,
-      styles.SingleOutput,
-    );
+    const classNameOutput = classNames(styles.Output, styles.SingleOutput);
 
     const outputMarkup = !disabled &&
       output && (
@@ -139,13 +134,11 @@ export class RangeSlider extends React.PureComponent<CombinedProps, State> {
         </output>
       );
 
-    const prefixMarkup = prefix && !dualThumb && (
-      <div className={styles.Prefix}>{prefix}</div>
-    );
+    const prefixMarkup = prefix &&
+      !isDualThumb(value) && <div className={styles.Prefix}>{prefix}</div>;
 
-    const suffixMarkup = suffix && !dualThumb && (
-      <div className={styles.Suffix}>{suffix}</div>
-    );
+    const suffixMarkup = suffix &&
+      !isDualThumb(value) && <div className={styles.Suffix}>{suffix}</div>;
 
     const className = classNames(
       styles.RangeSlider,
@@ -153,10 +146,10 @@ export class RangeSlider extends React.PureComponent<CombinedProps, State> {
       disabled && styles.disabled,
     );
 
-    const inputMarkup = dualThumb ? (
+    const inputMarkup = isDualThumb(value) ? (
       <DualThumb
         id={id}
-        value={value as [number, number]}
+        value={value}
         min={min}
         max={max}
         step={step}
@@ -182,14 +175,14 @@ export class RangeSlider extends React.PureComponent<CombinedProps, State> {
             min={min}
             max={max}
             step={step}
-            value={value as number}
+            value={value}
             disabled={disabled}
             onChange={this.handleChange}
             onFocus={onFocus}
             onBlur={onBlur}
             aria-valuemin={min}
             aria-valuemax={max}
-            aria-valuenow={value as number}
+            aria-valuenow={value}
             aria-invalid={Boolean(error)}
             aria-describedby={ariaDescribedBy}
           />
@@ -226,6 +219,11 @@ export class RangeSlider extends React.PureComponent<CombinedProps, State> {
 
     onChange(parseFloat(event.currentTarget.value) as number, this.state.id);
   }
+}
+function isDualThumb(
+  value: number | [number, number],
+): value is [number, number] {
+  return typeof value === 'object';
 }
 
 export function invertNumber(number: number) {
