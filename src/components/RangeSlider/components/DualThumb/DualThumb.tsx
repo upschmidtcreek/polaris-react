@@ -35,15 +35,15 @@ export interface Props {
   onBlur?(): void;
 }
 
+const THUMB_SIZE = 24;
+const OUTPUT_TIP_SIZE = 8;
+
 export default class DualThumb extends React.Component<Props, State> {
   state: State = {
     valueLower: this.props.value[0],
     valueUpper: this.props.value[1],
     trackWidth: 0,
   };
-
-  THUMB_SIZE = 24;
-  OUTPUT_TIP_SIZE = 8;
 
   private track = React.createRef<HTMLDivElement>();
   private thumbLower = React.createRef<HTMLDivElement>();
@@ -196,7 +196,7 @@ export default class DualThumb extends React.Component<Props, State> {
     ) : null;
 
     const trackWidth = this.state.trackWidth;
-    const adjustedTrackWidth = trackWidth - this.THUMB_SIZE;
+    const adjustedTrackWidth = trackWidth - THUMB_SIZE;
     const range = max - min;
 
     const leftPositionThumbLower = (valueLower / range) * adjustedTrackWidth;
@@ -209,9 +209,7 @@ export default class DualThumb extends React.Component<Props, State> {
           htmlFor={idLower}
           className={classNameOutputLower}
           style={{
-            left: `calc(${leftPositionThumbLower}px - ${
-              this.OUTPUT_TIP_SIZE
-            }px)`,
+            left: `calc(${leftPositionThumbLower}px - ${OUTPUT_TIP_SIZE}px)`,
           }}
         >
           <div className={styles.OutputBubble}>
@@ -227,9 +225,7 @@ export default class DualThumb extends React.Component<Props, State> {
           htmlFor={idUpper}
           className={classNameOutputUpper}
           style={{
-            left: `calc(${leftPositionThumbUpper}px - ${
-              this.OUTPUT_TIP_SIZE
-            }px)`,
+            left: `calc(${leftPositionThumbUpper}px - ${OUTPUT_TIP_SIZE}px)`,
           }}
         >
           <div className={styles.OutputBubble}>
@@ -240,9 +236,9 @@ export default class DualThumb extends React.Component<Props, State> {
 
     const cssVars = {
       [`${cssVarPrefix}progress-lower`]: `${leftPositionThumbLower +
-        this.THUMB_SIZE / 2}px`,
+        THUMB_SIZE / 2}px`,
       [`${cssVarPrefix}progress-upper`]: `${leftPositionThumbUpper +
-        this.THUMB_SIZE / 2}px`,
+        THUMB_SIZE / 2}px`,
     };
 
     return (
@@ -331,8 +327,7 @@ export default class DualThumb extends React.Component<Props, State> {
 
       const relativeX = event.clientX - clientRect.left;
 
-      const percentageOfTrack =
-        relativeX / (clientRect.width - this.THUMB_SIZE);
+      const percentageOfTrack = relativeX / (clientRect.width - THUMB_SIZE);
       const percentageOfRange = percentageOfTrack * (max - min);
 
       const steppedPercentageOfRange = roundToNearestStepValue(
@@ -385,8 +380,7 @@ export default class DualThumb extends React.Component<Props, State> {
 
       const relativeX = event.clientX - clientRect.left;
 
-      const percentageOfTrack =
-        relativeX / (clientRect.width - this.THUMB_SIZE);
+      const percentageOfTrack = relativeX / (clientRect.width - THUMB_SIZE);
       const percentageOfRange = percentageOfTrack * (max - min);
 
       const steppedPercentageOfRange = roundToNearestStepValue(
