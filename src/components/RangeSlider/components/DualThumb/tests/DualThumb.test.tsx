@@ -233,12 +233,17 @@ describe('<DualThumb />', () => {
         const value = [10, 20] as [number, number];
 
         const dualThumb = mountWithAppProvider(
-          <DualThumb {...mockProps} accessibilityInputs onChange={onChangeSpy} value={value} />,
+          <DualThumb
+            {...mockProps}
+            accessibilityInputs
+            onChange={onChangeSpy}
+            value={value}
+          />,
         );
 
         const id = 'RangeSlider';
         const textFieldLower = dualThumb.find(TextField).first();
-        trigger(textFieldLower, 'onChange', {value: value, id: id}, () => {
+        trigger(textFieldLower, 'onChange', {value, id}, () => {
           expect(onChangeSpy).toHaveBeenCalledWith({value, id});
         });
       });
@@ -248,12 +253,17 @@ describe('<DualThumb />', () => {
         const value = [10, 20] as [number, number];
 
         const dualThumb = mountWithAppProvider(
-          <DualThumb {...mockProps} accessibilityInputs onChange={onChangeSpy} value={value} />,
+          <DualThumb
+            {...mockProps}
+            accessibilityInputs
+            onChange={onChangeSpy}
+            value={value}
+          />,
         );
 
         const id = 'RangeSlider';
         const textFieldUpper = dualThumb.find(TextField).last();
-        trigger(textFieldUpper, 'onChange', {value: value, id: id}, () => {
+        trigger(textFieldUpper, 'onChange', {value, id}, () => {
           expect(onChangeSpy).toHaveBeenCalledWith({value, id});
         });
       });
@@ -306,18 +316,14 @@ describe('<DualThumb />', () => {
 
   describe('disabled', () => {
     it('sets aria-disabled to false by default on the lower thumb', () => {
-      const dualThumb = mountWithAppProvider(
-        <DualThumb {...mockProps} />,
-      );
+      const dualThumb = mountWithAppProvider(<DualThumb {...mockProps} />);
 
       const thumbLower = findByTestID(dualThumb, 'thumbLower');
       expect(thumbLower.prop('aria-disabled')).toBe(false);
     });
 
     it('sets aria-disabled to false by default on the upper thumb', () => {
-      const dualThumb = mountWithAppProvider(
-        <DualThumb {...mockProps} />,
-      );
+      const dualThumb = mountWithAppProvider(<DualThumb {...mockProps} />);
 
       const thumbUpper = findByTestID(dualThumb, 'thumbUpper');
       expect(thumbUpper.prop('aria-disabled')).toBe(false);
