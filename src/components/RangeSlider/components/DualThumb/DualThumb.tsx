@@ -171,7 +171,7 @@ export default class DualThumb extends React.Component<Props, State> {
           prefix={prefix}
           suffix={suffix}
           disabled={disabled}
-          value={`${valueLower}`}
+          value={String(valueLower)}
           onChange={this.handleTextFieldChangeLower}
           onBlur={this.handleTextFieldBlurLower}
         />
@@ -188,7 +188,7 @@ export default class DualThumb extends React.Component<Props, State> {
           prefix={prefix}
           suffix={suffix}
           disabled={disabled}
-          value={`${valueUpper}`}
+          value={String(valueUpper)}
           onChange={this.handleTextFieldChangeUpper}
           onBlur={this.handleTextFieldBlurUpper}
         />
