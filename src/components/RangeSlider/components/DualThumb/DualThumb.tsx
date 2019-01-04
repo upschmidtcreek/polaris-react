@@ -15,8 +15,6 @@ export interface State {
   valueLower: number;
   valueUpper: number;
   trackWidth: number;
-  accessibilityPrefix: string;
-  accessibilitySuffix: string;
 }
 
 export interface Props {
@@ -42,8 +40,6 @@ export default class DualThumb extends React.Component<Props, State> {
     valueLower: this.props.value[0],
     valueUpper: this.props.value[1],
     trackWidth: 0,
-    accessibilityPrefix: `${this.props.value[0]}`,
-    accessibilitySuffix: `${this.props.value[1]}`,
   };
 
   THUMB_SIZE = 24;
@@ -54,33 +50,25 @@ export default class DualThumb extends React.Component<Props, State> {
   private thumbUpper = React.createRef<HTMLDivElement>();
 
   componentDidMount() {
-    const steppedValueLower = roundToNearestStepValue(
-      this.state.valueLower,
-      this.props.step,
-    );
+    const {valueLower, valueUpper} = this.state;
+    const {step, min, max} = this.props;
     const valueWithinBoundsLower = keepValueWithinBoundsLower(
-      steppedValueLower,
-      this.state.valueUpper,
-      this.props.min,
-      this.props.step,
+      roundToNearestStepValue(valueLower, step),
+      valueUpper,
+      min,
+      step,
     );
 
-    const steppedValueUpper = roundToNearestStepValue(
-      this.state.valueUpper,
-      this.props.step,
-    );
     const valueWithinBoundsUpper = keepValueWithinBoundsUpper(
-      steppedValueUpper,
-      this.state.valueLower,
-      this.props.max,
-      this.props.step,
+      roundToNearestStepValue(valueUpper, step),
+      valueLower,
+      max,
+      step,
     );
 
     this.setState({
       valueLower: valueWithinBoundsLower,
       valueUpper: valueWithinBoundsUpper,
-      accessibilityPrefix: `${valueWithinBoundsLower}`,
-      accessibilitySuffix: `${valueWithinBoundsUpper}`,
     });
 
     if (this.track.current) {
@@ -183,7 +171,7 @@ export default class DualThumb extends React.Component<Props, State> {
           prefix={prefix}
           suffix={suffix}
           disabled={disabled}
-          value={this.state.accessibilityPrefix}
+          value={`${valueLower}`}
           onChange={this.handleTextFieldChangeLower}
           onBlur={this.handleTextFieldBlurLower}
         />
@@ -200,7 +188,7 @@ export default class DualThumb extends React.Component<Props, State> {
           prefix={prefix}
           suffix={suffix}
           disabled={disabled}
-          value={this.state.accessibilitySuffix}
+          value={`${valueUpper}`}
           onChange={this.handleTextFieldChangeUpper}
           onBlur={this.handleTextFieldBlurUpper}
         />
@@ -239,7 +227,7 @@ export default class DualThumb extends React.Component<Props, State> {
           htmlFor={idUpper}
           className={classNameOutputUpper}
           style={{
-            left: `calc(${leftPositionThumbUpper}px  - ${
+            left: `calc(${leftPositionThumbUpper}px - ${
               this.OUTPUT_TIP_SIZE
             }px)`,
           }}
@@ -337,6 +325,7 @@ export default class DualThumb extends React.Component<Props, State> {
   @autobind
   private handleMouseMoveThumbLower(event: MouseEvent) {
     if (this.track.current) {
+      const {valueUpper} = this.state;
       const {min, max, step} = this.props;
       const clientRect = this.track.current.getBoundingClientRect();
 
@@ -353,14 +342,13 @@ export default class DualThumb extends React.Component<Props, State> {
 
       const valueWithinBoundsLower = keepValueWithinBoundsLower(
         steppedPercentageOfRange,
-        this.state.valueUpper,
+        valueUpper,
         min,
         step,
       );
       this.setState(
         {
           valueLower: valueWithinBoundsLower,
-          accessibilityPrefix: `${valueWithinBoundsLower}`,
         },
         () => {
           this.handleChange();
@@ -391,6 +379,7 @@ export default class DualThumb extends React.Component<Props, State> {
   @autobind
   private handleMouseMoveThumbUpper(event: MouseEvent) {
     if (this.track.current) {
+      const {valueLower} = this.state;
       const {min, max, step} = this.props;
       const clientRect = this.track.current.getBoundingClientRect();
 
@@ -407,14 +396,13 @@ export default class DualThumb extends React.Component<Props, State> {
 
       const valueWithinBoundsUpper = keepValueWithinBoundsUpper(
         steppedPercentageOfRange,
-        this.state.valueLower,
+        valueLower,
         max,
         step,
       );
       this.setState(
         {
           valueUpper: valueWithinBoundsUpper,
-          accessibilitySuffix: `${valueWithinBoundsUpper}`,
         },
         () => {
           this.handleChange();
@@ -425,41 +413,37 @@ export default class DualThumb extends React.Component<Props, State> {
 
   @autobind
   private handleChange() {
-    const {onChange} = this.props;
+    const {onChange, id} = this.props;
+    const {valueLower, valueUpper} = this.state;
 
-    return onChange(
-      [this.state.valueLower, this.state.valueUpper] as [number, number],
-      this.props.id,
-    );
+    return onChange([valueLower, valueUpper] as [number, number], id);
   }
 
   @autobind
   private handleTextFieldChangeLower(value: string) {
-    this.setState({accessibilityPrefix: `${value}`});
+    this.setState({valueLower: Number(value)});
   }
 
   @autobind
   private handleTextFieldChangeUpper(value: string) {
-    this.setState({accessibilitySuffix: `${value}`});
+    this.setState({valueUpper: Number(value)});
   }
 
   @autobind
   private handleTextFieldBlurLower() {
-    const steppedValue = roundToNearestStepValue(
-      Number(this.state.accessibilityPrefix),
-      this.props.step,
-    );
+    const {valueLower, valueUpper} = this.state;
+    const {step, min} = this.props;
+    const steppedValue = roundToNearestStepValue(valueLower, step);
 
     const valueWithinBoundsLower = keepValueWithinBoundsLower(
       steppedValue,
-      this.state.valueUpper,
-      this.props.min,
-      this.props.step,
+      valueUpper,
+      min,
+      step,
     );
     this.setState(
       {
         valueLower: valueWithinBoundsLower,
-        accessibilityPrefix: `${valueWithinBoundsLower}`,
       },
       () => {
         this.handleChange();
@@ -469,21 +453,19 @@ export default class DualThumb extends React.Component<Props, State> {
 
   @autobind
   private handleTextFieldBlurUpper() {
-    const steppedValue = roundToNearestStepValue(
-      Number(this.state.accessibilitySuffix),
-      this.props.step,
-    );
+    const {step, max} = this.props;
+    const {valueUpper, valueLower} = this.state;
+    const steppedValue = roundToNearestStepValue(valueUpper, step);
 
     const valueWithinBoundsUpper = keepValueWithinBoundsUpper(
       steppedValue,
-      this.state.valueLower,
-      this.props.max,
-      this.props.step,
+      valueLower,
+      max,
+      step,
     );
     this.setState(
       {
         valueUpper: valueWithinBoundsUpper,
-        accessibilitySuffix: `${valueWithinBoundsUpper}`,
       },
       () => {
         this.handleChange();
@@ -493,31 +475,32 @@ export default class DualThumb extends React.Component<Props, State> {
 
   @autobind
   private handleKeypressLower(event: KeyboardEvent) {
+    const {valueLower, valueUpper} = this.state;
+    const {step, min} = this.props;
     event.preventDefault();
     event.stopPropagation();
 
-    let newValue = this.state.valueLower;
+    let newValue = valueLower;
 
     if (event.keyCode === Key.DownArrow || event.keyCode === Key.LeftArrow) {
-      newValue = this.state.valueLower - this.props.step;
+      newValue = valueLower - step;
     } else if (
       event.keyCode === Key.UpArrow ||
       event.keyCode === Key.RightArrow
     ) {
-      newValue = this.state.valueLower + this.props.step;
+      newValue = valueLower + step;
     }
 
     const valueWithinBoundsLower = keepValueWithinBoundsLower(
       newValue,
-      this.state.valueUpper,
-      this.props.min,
-      this.props.step,
+      valueUpper,
+      min,
+      step,
     );
 
     this.setState(
       {
         valueLower: valueWithinBoundsLower,
-        accessibilityPrefix: `${valueWithinBoundsLower}`,
       },
       () => {
         this.handleChange();
@@ -527,31 +510,32 @@ export default class DualThumb extends React.Component<Props, State> {
 
   @autobind
   private handleKeypressUpper(event: KeyboardEvent) {
+    const {valueLower, valueUpper} = this.state;
+    const {max, step} = this.props;
     event.preventDefault();
     event.stopPropagation();
 
-    let newValue = this.state.valueUpper;
+    let newValue = valueUpper;
 
     if (event.keyCode === Key.DownArrow || event.keyCode === Key.LeftArrow) {
-      newValue = this.state.valueUpper - this.props.step;
+      newValue = valueUpper - step;
     } else if (
       event.keyCode === Key.UpArrow ||
       event.keyCode === Key.RightArrow
     ) {
-      newValue = this.state.valueUpper + this.props.step;
+      newValue = valueUpper + step;
     }
 
     const valueWithinBoundsUpper = keepValueWithinBoundsUpper(
       newValue,
-      this.state.valueLower,
-      this.props.max,
-      this.props.step,
+      valueLower,
+      max,
+      step,
     );
 
     this.setState(
       {
         valueUpper: valueWithinBoundsUpper,
-        accessibilitySuffix: `${valueWithinBoundsUpper}`,
       },
       () => {
         this.handleChange();
