@@ -151,20 +151,6 @@ $range-accessibility-input-margin: rem(8px);
   // stylelint-enable selector-max-specificity
 }
 
-.ThumbLower:hover + &,
-.ThumbLower:active + &,
-.ThumbLower:focus + & {
-  opacity: 1;
-  visibility: visible;
-}
-
-.ThumbUpper:hover + &,
-.ThumbUpper:active + &,
-.ThumbUpper:focus + & {
-  opacity: 1;
-  visibility: visible;
-}
-
 $range-output-size: rem(32px);
 $range-output-tip-size: rem(8px);
 
@@ -178,6 +164,20 @@ $range-output-tip-size: rem(8px);
   transition-property: opacity, visibility;
   transition-duration: duration();
   transition-timing-function: easing();
+
+  .ThumbLower:hover + &,
+  .ThumbLower:active + &,
+  .ThumbLower:focus + & {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .ThumbUpper:hover + &,
+  .ThumbUpper:active + &,
+  .ThumbUpper:focus + & {
+    opacity: 1;
+    visibility: visible;
+  }
 }
 
 .OutputBubble {
