@@ -161,6 +161,10 @@ export default class DualThumb extends React.Component<Props, State> {
       styles.AccessibilityInputUpper,
     );
 
+    const lowerMaxValue = isNaN(valueUpper - step)
+      ? undefined
+      : valueUpper - step;
+
     const accessibilityPrefixMarkup = accessibilityInputs ? (
       <div className={classNameAccessibilityInputLower}>
         <TextField
@@ -174,11 +178,15 @@ export default class DualThumb extends React.Component<Props, State> {
           value={String(valueLower)}
           onChange={this.handleTextFieldChangeLower}
           onBlur={this.handleTextFieldBlurLower}
-          max={valueUpper - step}
+          max={lowerMaxValue}
           min={min}
         />
       </div>
     ) : null;
+
+    const upperMinValue = isNaN(valueLower + step)
+      ? undefined
+      : valueLower + step;
 
     const accessibilitySuffixMarkup = accessibilityInputs ? (
       <div className={classNameAccessibilityInputUpper}>
@@ -194,7 +202,7 @@ export default class DualThumb extends React.Component<Props, State> {
           onChange={this.handleTextFieldChangeUpper}
           onBlur={this.handleTextFieldBlurUpper}
           max={max}
-          min={valueLower + step}
+          min={upperMinValue}
         />
       </div>
     ) : null;
