@@ -233,7 +233,7 @@ Use a dual thumb range slider when merchants need to select a range of values.
 ```jsx
 class RangeSliderExample extends React.Component {
   state = {
-    value: [32, 60],
+    value: undefined,
   };
 
   handleChange = (value) => {
@@ -245,7 +245,7 @@ class RangeSliderExample extends React.Component {
       <Card sectioned>
         <RangeSlider
           label=""
-          value={this.state.value}
+          value={[32, 60]}
           onChange={this.handleChange}
           accessibilityInputs
         />
