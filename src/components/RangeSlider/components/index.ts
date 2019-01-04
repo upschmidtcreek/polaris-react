@@ -1,4 +1,1 @@
-import DualThumb from './DualThumb';
-
-export {Props} from './DualThumb';
-export default DualThumb;
+export {default as DualThumb, Props as DualThumbProps} from './DualThumb';

@@ -1,9 +1,8 @@
 import * as React from 'react';
 import {noop} from '@shopify/javascript-utilities/other';
 import {shallowWithAppProvider, mountWithAppProvider} from 'test-utilities';
-import RangeSlider from '../RangeSlider';
-import {invertNumber} from '../utilities';
-import {DualThumb} from '../components/DualThumb';
+import RangeSlider, {invertNumber} from '../RangeSlider';
+import {DualThumb} from '../components';
 
 describe('<RangeSlider />', () => {
   it('allows specific props to pass through properties on the input', () => {
@@ -28,7 +27,12 @@ describe('<RangeSlider />', () => {
 
   it('does not render if value is a tuple', () => {
     const element = mountWithAppProvider(
-      <RangeSlider label="RangeSlider" id="MyRangeSlider" value={[0, 25]} onChange={noop} />,
+      <RangeSlider
+        label="RangeSlider"
+        id="MyRangeSlider"
+        value={[0, 25]}
+        onChange={noop}
+      />,
     );
 
     expect(element.find('input')).toHaveLength(0);
