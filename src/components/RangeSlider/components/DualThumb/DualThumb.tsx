@@ -174,6 +174,8 @@ export default class DualThumb extends React.Component<Props, State> {
           value={String(valueLower)}
           onChange={this.handleTextFieldChangeLower}
           onBlur={this.handleTextFieldBlurLower}
+          max={valueUpper - step}
+          min={min}
         />
       </div>
     ) : null;
@@ -191,6 +193,8 @@ export default class DualThumb extends React.Component<Props, State> {
           value={String(valueUpper)}
           onChange={this.handleTextFieldChangeUpper}
           onBlur={this.handleTextFieldBlurUpper}
+          max={max}
+          min={valueLower + step}
         />
       </div>
     ) : null;
