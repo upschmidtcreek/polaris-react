@@ -112,7 +112,8 @@ $spinner-size: rem(20px);
 // in this case.
 // stylelint-disable selector-max-specificity
 
-.plain {
+.plain,
+.subdued {
   @include recolor-icon(color('blue'));
   margin: (-1 * $vertical-padding) rem(-8px);
   padding-left: rem(8px);
@@ -191,6 +192,36 @@ $spinner-size: rem(20px);
   }
 }
 
+.subdued {
+  @include recolor-icon(color('ink', 'light'));
+  text-decoration: underline;
+  color: color('ink', 'light');
+
+  &:hover,
+  &:focus,
+  &:active {
+    @include recolor-icon(color('ink'));
+    color: color('ink');
+  }
+
+  &.disabled {
+    color: color('ink', 'lightest');
+    @include recolor-icon(color('ink', 'lightest'));
+  }
+
+  &.iconOnly {
+    @include recolor-icon(color('ink', 'lighter'));
+
+    &:focus,
+    &:active {
+      @include recolor-icon(color('ink', 'lighter'));
+    }
+
+    &.disabled {
+      @include recolor-icon(color('ink', 'lightest'));
+    }
+  }
+}
 // stylelint-enable selector-max-specificity
 
 .sizeSlim {

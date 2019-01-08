@@ -44,6 +44,8 @@ export interface Props {
   submit?: boolean;
   /** Renders a button that looks like a link */
   plain?: boolean;
+  /** Gives the button a subtle alternative to the `plain` styling, appropriate for certain backdrops */
+  subdued?: boolean;
   /** Forces url to open in a new tab */
   external?: boolean;
   /** Icon to display to the left of the button content */
@@ -54,6 +56,8 @@ export interface Props {
   ariaControls?: string;
   /** Tells screen reader the controlled element is expanded */
   ariaExpanded?: boolean;
+  /** Tells screen reader the element is pressed */
+  ariaPressed?: boolean;
   /** Callback when clicked */
   onClick?(): void;
   /** Callback when button becomes focussed */
@@ -75,6 +79,7 @@ function Button({
   accessibilityLabel,
   ariaControls,
   ariaExpanded,
+  ariaPressed,
   onClick,
   onFocus,
   onBlur,
@@ -85,6 +90,7 @@ function Button({
   destructive,
   disclosure,
   plain,
+  subdued,
   submit,
   size = DEFAULT_SIZE,
   fullWidth,
@@ -100,6 +106,7 @@ function Button({
     isDisabled && styles.disabled,
     loading && styles.loading,
     plain && styles.plain,
+    subdued && styles.subdued,
     size && size !== DEFAULT_SIZE && styles[variationName('size', size)],
     fullWidth && styles.fullWidth,
     icon && children == null && styles.iconOnly,
@@ -186,6 +193,7 @@ function Button({
       aria-label={accessibilityLabel}
       aria-controls={ariaControls}
       aria-expanded={ariaExpanded}
+      aria-pressed={ariaPressed}
       role={loading ? 'alert' : undefined}
       aria-busy={loading ? true : undefined}
     >

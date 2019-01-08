@@ -142,6 +142,14 @@ Use for less important or less commonly used actions since they’re less promin
 <Button plain>View shipping settings</Button>
 ```
 
+### Subdued button
+
+Similar to plain buttons, use for less important or less commonly used actions since they’re less prominent. For example, subdued buttons used in list of actions.
+
+```jsx
+<Button subdued>View shipping settings</Button>
+```
+
 <!-- content-for: android -->
 
 ![Plain button for Android](/public_images/components/Button/android/plain@2x.png)
