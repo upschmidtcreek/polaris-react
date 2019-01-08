@@ -7,6 +7,7 @@ Use [the changelog guidelines](https://git.io/polaris-changelog-guidelines) to f
 ### Enhancements
 
 - Added second thumb to `RangeSlider` ([#784](https://github.com/Shopify/polaris-react/pull/784))
+- Added clamp to `RangeSlider` so its initial value doesn't exceed min or max ([#834](https://github.com/Shopify/polaris-react/pull/834))
 
 ### Bug fixes
 
