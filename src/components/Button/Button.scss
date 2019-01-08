@@ -113,9 +113,9 @@ $spinner-size: rem(20px);
 // stylelint-disable selector-max-specificity
 
 .plain,
-.subdued {
+.monochrome {
   @include recolor-icon(color('blue'));
-  margin: (-1 * $vertical-padding) rem(-8px);
+  margin: rem(-8px);
   padding-left: rem(8px);
   padding-right: rem(8px);
   background: transparent;
@@ -192,34 +192,44 @@ $spinner-size: rem(20px);
   }
 }
 
-.subdued {
-  @include recolor-icon(color('ink', 'light'));
-  text-decoration: underline;
-  color: color('ink', 'light');
+.monochrome {
+  @include recolor-icon(inherit);
+  color: inherit;
 
   &:hover,
   &:focus,
   &:active {
-    @include recolor-icon(color('ink'));
-    color: color('ink');
+    @include recolor-icon(inherit);
+    color: inherit;
+
+    .Text {
+      &::after {
+        opacity: 0.3;
+      }
+    }
   }
 
   &.disabled {
-    color: color('ink', 'lightest');
-    @include recolor-icon(color('ink', 'lightest'));
+    color: inherit;
+    @include recolor-icon(inherit);
+    opacity: 0.45;
   }
 
   &.iconOnly {
-    @include recolor-icon(color('ink', 'lighter'));
+    @include recolor-icon(inherit);
 
     &:focus,
     &:active {
-      @include recolor-icon(color('ink', 'lighter'));
+      @include recolor-icon(inherit);
     }
 
     &.disabled {
-      @include recolor-icon(color('ink', 'lightest'));
+      @include recolor-icon(inherit);
     }
+  }
+
+  .Text {
+    @include underlined-link;
   }
 }
 // stylelint-enable selector-max-specificity

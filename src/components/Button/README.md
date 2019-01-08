@@ -142,12 +142,19 @@ Use for less important or less commonly used actions since they’re less promin
 <Button plain>View shipping settings</Button>
 ```
 
-### Subdued button
+### Monochrome button
 
-Similar to plain buttons, use for less important or less commonly used actions since they’re less prominent. For example, subdued buttons used in list of actions.
+Use to render a buttons that look like links where matching the surrounding text color is visually more appropriate. For example in the InlineError component.
 
 ```jsx
-<Button subdued>View shipping settings</Button>
+<InlineError
+  message={
+    <React.Fragment>
+      Not a valid email. Did you mean &nbsp;
+      <Button monochrome>gmail.com</Button>
+    </React.Fragment>
+  }
+/>
 ```
 
 <!-- content-for: android -->

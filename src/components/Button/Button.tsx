@@ -44,8 +44,8 @@ export interface Props {
   submit?: boolean;
   /** Renders a button that looks like a link */
   plain?: boolean;
-  /** Gives the button a subtle alternative to the `plain` styling, appropriate for certain backdrops */
-  subdued?: boolean;
+  /** Renders a button that looks like a link. Similar to `plain` buttons except the text is underlined and the text color and icon fill are inherited from the parent element */
+  monochrome?: boolean;
   /** Forces url to open in a new tab */
   external?: boolean;
   /** Icon to display to the left of the button content */
@@ -90,7 +90,7 @@ function Button({
   destructive,
   disclosure,
   plain,
-  subdued,
+  monochrome,
   submit,
   size = DEFAULT_SIZE,
   fullWidth,
@@ -106,7 +106,7 @@ function Button({
     isDisabled && styles.disabled,
     loading && styles.loading,
     plain && styles.plain,
-    subdued && styles.subdued,
+    monochrome && styles.monochrome,
     size && size !== DEFAULT_SIZE && styles[variationName('size', size)],
     fullWidth && styles.fullWidth,
     icon && children == null && styles.iconOnly,
@@ -129,7 +129,9 @@ function Button({
     iconMarkup = <IconWrapper>{iconInner}</IconWrapper>;
   }
 
-  const childMarkup = children ? <span>{children}</span> : null;
+  const childMarkup = children ? (
+    <span className={styles.Text}>{children}</span>
+  ) : null;
 
   const spinnerColor = primary || destructive ? 'white' : 'inkLightest';
 

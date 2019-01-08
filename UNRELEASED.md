@@ -6,8 +6,11 @@ Use [the changelog guidelines](https://git.io/polaris-changelog-guidelines) to f
 
 ### Enhancements
 
-- Added `sudbdued` prop to `Button` component ([#821](https://github.com/Shopify/polaris-react/pull/821))
+- Added `monochrome` prop to `Button` and `Link` component ([#821](https://github.com/Shopify/polaris-react/pull/821))
+
 ### Bug fixes
+
+- Adjusted `plain` button margin to align with text ([#821](https://github.com/Shopify/polaris-react/pull/821))
 
 ### Documentation
 
