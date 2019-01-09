@@ -30,6 +30,8 @@ Range sliders should:
 - Be labeled as “Optional” when you need to request input that’s not required
 - Validate input as soon as merchants have finished interacting with a field (but not before)
 - Always be used with `accessibilityInputs` when range slider has dual thumbs, to provide accessible alternatives to sliding the thumbs
+  /** Displays text fields as the prefix and suffix for the dual thumb slider only */
+
 
 ---
 
@@ -251,6 +253,113 @@ class RangeSliderExample extends React.Component {
   }
 }
 ```
+
+.AccessibilityInputsWrapper {
+  width: 100%;
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  margin-top: $range-accessibility-input-margin;
+}
+
+.AccessibilityInputLower {
+  min-width: rem(80px);
+}
+
+
+    const accessibilityPrefixMarkup = accessibilityInputs ? (
+      <div className={classNameAccessibilityInputLower}>
+        <TextField
+          label="Lower value"
+          labelHidden
+          type="number"
+          step={step}
+          prefix={prefix}
+          suffix={suffix}
+          disabled={disabled}
+          value={String(valueLower)}
+          onChange={this.handleTextFieldChangeLower}
+          onBlur={this.handleTextFieldBlurLower}
+          max={lowerMaxValue}
+          min={min}
+        />
+      </div>
+    ) : null;
+
+
+    const accessibilitySuffixMarkup = accessibilityInputs ? (
+      <div className={classNameAccessibilityInputUpper}>
+        <TextField
+          label="Upper value"
+          labelHidden
+          type="number"
+          step={step}
+          prefix={prefix}
+          suffix={suffix}
+          disabled={disabled}
+          value={String(valueUpper)}
+          onChange={this.handleTextFieldChangeUpper}
+          onBlur={this.handleTextFieldBlurUpper}
+          max={max}
+          min={upperMinValue}
+        />
+      </div>
+    ) : null;
+
+
+  @autobind
+  private handleTextFieldChangeLower(value: string) {
+    this.setState({valueLower: Number(value)});
+  }
+
+  @autobind
+  private handleTextFieldChangeUpper(value: string) {
+    this.setState({valueUpper: Number(value)});
+  }
+
+  @autobind
+  private handleTextFieldBlurLower() {
+    const {valueLower, valueUpper} = this.state;
+    const {step, min} = this.props;
+    const steppedValue = roundToNearestStepValue(valueLower, step);
+
+    const valueWithinBoundsLower = keepValueWithinBoundsLower(
+      steppedValue,
+      valueUpper,
+      min,
+      step,
+    );
+    this.setState(
+      {
+        valueLower: valueWithinBoundsLower,
+      },
+      () => {
+        this.handleChange();
+      },
+    );
+  }
+
+  @autobind
+  private handleTextFieldBlurUpper() {
+    const {step, max} = this.props;
+    const {valueUpper, valueLower} = this.state;
+    const steppedValue = roundToNearestStepValue(valueUpper, step);
+
+    const valueWithinBoundsUpper = keepValueWithinBoundsUpper(
+      steppedValue,
+      valueLower,
+      max,
+      step,
+    );
+    this.setState(
+      {
+        valueUpper: valueWithinBoundsUpper,
+      },
+      () => {
+        this.handleChange();
+      },
+    );
+  }
 
 ---
 
