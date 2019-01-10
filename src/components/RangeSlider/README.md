@@ -30,8 +30,7 @@ Range sliders should:
 - Be labeled as “Optional” when you need to request input that’s not required
 - Validate input as soon as merchants have finished interacting with a field (but not before)
 - Always be used with `accessibilityInputs` when range slider has dual thumbs, to provide accessible alternatives to sliding the thumbs
-  /** Displays text fields as the prefix and suffix for the dual thumb slider only */
-
+  /\*_ Displays text fields as the prefix and suffix for the dual thumb slider only _/
 
 ---
 
@@ -234,132 +233,93 @@ Use a dual thumb range slider when merchants need to select a range of values.
 
 ```jsx
 class RangeSliderExample extends React.Component {
-  handleChange = (value) => {
-    console.log({value});
+  state = {
+    rangeSliderValues: [30, 50],
+    lowerTextFieldValue: '30',
+    upperTextFieldValue: '50',
+  };
+
+  handleRangeSliderChange = (value: [number, number]) => {
+    this.setState({
+      rangeSliderValues: value,
+      lowerTextFieldValue: String(value[0]),
+      upperTextFieldValue: String(value[1]),
+    });
+  };
+
+  handleLowerTextFieldChange = (lowerValue: string) => {
+    const {rangeSliderValues} = this.state;
+    const upperValue = rangeSliderValues[1];
+    this.setState({lowerTextFieldValue: lowerValue});
+
+    setTimeout(() => {
+      this.setState({rangeSliderValues: [Number(lowerValue), upperValue]});
+    }, 500);
+  };
+
+  handleUpperTextFieldChange = (upperValue: string) => {
+    const {rangeSliderValues} = this.state;
+    const lowerValue = rangeSliderValues[0];
+    this.setState({upperTextFieldValue: upperValue});
+
+    setTimeout(() => {
+      this.setState({
+        rangeSliderValues: [lowerValue, parseInt(upperValue, 10)],
+      });
+    }, 500);
   };
 
   render() {
+    const {
+      rangeSliderValues,
+      lowerTextFieldValue,
+      upperTextFieldValue,
+    } = this.state;
+
+    const prefix = '$';
+    const min = 0;
+    const max = 200;
+    const disabled = false;
+
     return (
       <Card sectioned>
         <RangeSlider
-          label=""
-          value={[35, 60]}
-          onChange={this.handleChange}
-          accessibilityInputs
-          step={5}
+          label="Money spent is between"
+          value={rangeSliderValues}
+          onChange={this.handleRangeSliderChange}
+          min={min}
+          max={max}
+          output
+          disabled={disabled}
         />
+        <div style={{marginTop: '8px'}} />
+        <Stack distribution="equalSpacing" spacing="extraLoose">
+          <TextField
+            label=""
+            labelHidden
+            type="number"
+            value={lowerTextFieldValue}
+            prefix={prefix}
+            min={min}
+            max={max}
+            onChange={this.handleLowerTextFieldChange}
+          />
+          <TextField
+            label=""
+            labelHidden
+            type="number"
+            value={upperTextFieldValue}
+            prefix={prefix}
+            min={min}
+            max={max}
+            onChange={this.handleUpperTextFieldChange}
+          />
+        </Stack>
       </Card>
     );
   }
 }
 ```
-
-.AccessibilityInputsWrapper {
-  width: 100%;
-  display: flex;
-  flex-wrap: nowrap;
-  justify-content: space-between;
-  margin-top: $range-accessibility-input-margin;
-}
-
-.AccessibilityInputLower {
-  min-width: rem(80px);
-}
-
-
-    const accessibilityPrefixMarkup = accessibilityInputs ? (
-      <div className={classNameAccessibilityInputLower}>
-        <TextField
-          label="Lower value"
-          labelHidden
-          type="number"
-          step={step}
-          prefix={prefix}
-          suffix={suffix}
-          disabled={disabled}
-          value={String(valueLower)}
-          onChange={this.handleTextFieldChangeLower}
-          onBlur={this.handleTextFieldBlurLower}
-          max={lowerMaxValue}
-          min={min}
-        />
-      </div>
-    ) : null;
-
-
-    const accessibilitySuffixMarkup = accessibilityInputs ? (
-      <div className={classNameAccessibilityInputUpper}>
-        <TextField
-          label="Upper value"
-          labelHidden
-          type="number"
-          step={step}
-          prefix={prefix}
-          suffix={suffix}
-          disabled={disabled}
-          value={String(valueUpper)}
-          onChange={this.handleTextFieldChangeUpper}
-          onBlur={this.handleTextFieldBlurUpper}
-          max={max}
-          min={upperMinValue}
-        />
-      </div>
-    ) : null;
-
-
-  @autobind
-  private handleTextFieldChangeLower(value: string) {
-    this.setState({valueLower: Number(value)});
-  }
-
-  @autobind
-  private handleTextFieldChangeUpper(value: string) {
-    this.setState({valueUpper: Number(value)});
-  }
-
-  @autobind
-  private handleTextFieldBlurLower() {
-    const {valueLower, valueUpper} = this.state;
-    const {step, min} = this.props;
-    const steppedValue = roundToNearestStepValue(valueLower, step);
-
-    const valueWithinBoundsLower = keepValueWithinBoundsLower(
-      steppedValue,
-      valueUpper,
-      min,
-      step,
-    );
-    this.setState(
-      {
-        valueLower: valueWithinBoundsLower,
-      },
-      () => {
-        this.handleChange();
-      },
-    );
-  }
-
-  @autobind
-  private handleTextFieldBlurUpper() {
-    const {step, max} = this.props;
-    const {valueUpper, valueLower} = this.state;
-    const steppedValue = roundToNearestStepValue(valueUpper, step);
-
-    const valueWithinBoundsUpper = keepValueWithinBoundsUpper(
-      steppedValue,
-      valueLower,
-      max,
-      step,
-    );
-    this.setState(
-      {
-        valueUpper: valueWithinBoundsUpper,
-      },
-      () => {
-        this.handleChange();
-      },
-    );
-  }
 
 ---
 
